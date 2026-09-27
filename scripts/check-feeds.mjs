@@ -10,6 +10,7 @@
 
 import fs from 'node:fs';
 import { diagnoseFeeds } from '../lib/diagnose.js';
+import { USER_AGENT, CANADABUYS_URL } from '../lib/feeds.js';
 
 const outIndex = process.argv.indexOf('--out');
 const outFile = outIndex > 0 ? process.argv[outIndex + 1] : null;
@@ -17,6 +18,32 @@ const outFile = outIndex > 0 ? process.argv[outIndex + 1] : null;
 const now = new Date();
 const feeds = await diagnoseFeeds({ now, detail: true, includeSam: true });
 const report = { checkedAt: now.toISOString(), ok: Object.values(feeds).every(f => f.ok), feeds };
+
+// If CanadaBuys refuses the request, record how it answers different kinds of request.
+if (feeds.canadabuys && !feeds.canadabuys.ok) {
+  const variants = {
+    engine: { 'User-Agent': USER_AGENT, Accept: 'text/csv,*/*' },
+    browser: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36', Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-CA,en;q=0.9' },
+    bare: {}
+  };
+  const urls = {
+    open: CANADABUYS_URL,
+    new: 'https://canadabuys.canada.ca/opendata/pub/newTenderNotice-nouvelAvisAppelOffres.csv',
+    portal: 'https://open.canada.ca/data/en/api/3/action/package_show?id=6abd20d4-7a1c-4b38-baa2-9525d0bb2fd2'
+  };
+  report.canadabuysProbe = [];
+  for (const [u, url] of Object.entries(urls)) {
+    for (const [v, headers] of Object.entries(variants)) {
+      try {
+        const res = await fetch(url, { headers, redirect: 'manual', signal: AbortSignal.timeout(20000) });
+        const text = (await res.text()).slice(0, 300);
+        report.canadabuysProbe.push({ url: u, variant: v, status: res.status, server: res.headers.get('server'), location: res.headers.get('location'), contentType: res.headers.get('content-type'), body: text });
+      } catch (err) {
+        report.canadabuysProbe.push({ url: u, variant: v, error: String(err && err.message) });
+      }
+    }
+  }
+}
 
 if (outFile) fs.writeFileSync(outFile, JSON.stringify(report, null, 2));
 
