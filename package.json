@@ -1,0 +1,10 @@
+{
+  "name": "aragocor-opportunity-engine",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node scripts/test.mjs",
+    "check-feeds": "node scripts/check-feeds.mjs"
+  }
+}

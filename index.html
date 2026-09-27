@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Staff tool: open procurement opportunities matched to AragoCor grades.">
+<meta name="color-scheme" content="light dark">
+<title>AragoCor Opportunity Engine</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f5257'/%3E%3Ccircle cx='16' cy='16' r='9.5' fill='none' stroke='%23f5f2eb' stroke-width='1.6' opacity='.5'/%3E%3Ccircle cx='16' cy='16' r='5.8' fill='none' stroke='%23f5f2eb' stroke-width='1.6' opacity='.8'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%23d8bd86'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2eb; --surface: #ffffff; --surface-2: #efe9dd; --border: #e2dacb; --border-strong: #cdc1a9;
+    --text: #132a2c; --text-2: #465d5f; --text-3: #75888a;
+    --primary: #0f5257; --primary-hover: #0a4145; --on-primary: #ffffff; --primary-soft: #e0edeb; --primary-text: #0f5257;
+    --sand: #b08a44; --sand-soft: #f4ead3;
+    --high: #1c6e46; --high-bg: #e0f1e6; --med: #85580c; --med-bg: #f7ebd1; --low: #5f6f70; --low-bg: #eaedec;
+    --urgent: #b42318; --soon: #85580c; --danger: #b42318; --danger-bg: #fbeae8;
+    --shadow: 0 1px 2px rgba(19, 42, 44, .05), 0 6px 20px rgba(19, 42, 44, .05);
+    --radius: 12px; --radius-sm: 8px;
+    --font: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c1718; --surface: #122224; --surface-2: #182c2e; --border: #243c3e; --border-strong: #315053;
+      --text: #e7eeed; --text-2: #a7baba; --text-3: #6f8789;
+      --primary: #5bbcb1; --primary-hover: #76cbc1; --on-primary: #06201f; --primary-soft: rgba(91, 188, 177, .13); --primary-text: #7fd1c7;
+      --sand: #d8bd86; --sand-soft: rgba(216, 189, 134, .14);
+      --high: #6fd3a0; --high-bg: rgba(111, 211, 160, .12); --med: #e7ba62; --med-bg: rgba(231, 186, 98, .13); --low: #91a4a5; --low-bg: rgba(145, 164, 165, .12);
+      --urgent: #f08a80; --soon: #e7ba62; --danger: #f08a80; --danger-bg: rgba(240, 138, 128, .12);
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .22);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c1718; --surface: #122224; --surface-2: #182c2e; --border: #243c3e; --border-strong: #315053;
+    --text: #e7eeed; --text-2: #a7baba; --text-3: #6f8789;
+    --primary: #5bbcb1; --primary-hover: #76cbc1; --on-primary: #06201f; --primary-soft: rgba(91, 188, 177, .13); --primary-text: #7fd1c7;
+    --sand: #d8bd86; --sand-soft: rgba(216, 189, 134, .14);
+    --high: #6fd3a0; --high-bg: rgba(111, 211, 160, .12); --med: #e7ba62; --med-bg: rgba(231, 186, 98, .13); --low: #91a4a5; --low-bg: rgba(145, 164, 165, .12);
+    --urgent: #f08a80; --soon: #e7ba62; --danger: #f08a80; --danger-bg: rgba(240, 138, 128, .12);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .22);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: var(--primary-text); }
+  h1, h2, h3 { margin: 0; }
+  .mono { font-family: var(--mono); }
+  .muted { color: var(--text-3); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 768px) { .wrap { padding: 0 24px; } }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Top bar */
+  .topbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; min-height: 64px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .brand-mark { width: 36px; height: 36px; flex: none; }
+  .brand-name { font-weight: 600; font-size: 16px; letter-spacing: -.01em; line-height: 1.25; }
+  .brand-sub { font-size: 12px; color: var(--text-3); }
+  .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 500; font-size: 13px; cursor: pointer; text-decoration: none; white-space: nowrap; transition: background-color .15s, border-color .15s, color .15s; }
+  .btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .btn-primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+  .btn-soft { background: var(--primary-soft); border-color: transparent; color: var(--primary-text); }
+  .btn-soft:hover { background: var(--primary-soft); border-color: var(--primary); }
+  .btn-ghost { background: transparent; border-color: transparent; }
+  .btn-danger { color: var(--danger); }
+  .btn-danger:hover { background: var(--danger-bg); border-color: transparent; }
+  .btn-icon { width: 36px; padding: 0; }
+  .btn-sm { height: 30px; padding: 0 10px; font-size: 12px; }
+  .btn-sm svg.i { width: 13px; height: 13px; }
+  .btn[disabled] { opacity: .65; cursor: progress; }
+  .spinning svg.i { animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 640px) { .hide-sm { display: none; } }
+
+  /* Status + metrics */
+  .status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 18px; font-size: 13px; color: var(--text-2); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); flex: none; }
+  .dot.ok { background: var(--high); }
+  .dot.warn { background: var(--med); }
+  .dot.err { background: var(--danger); }
+  .status .sep { color: var(--border-strong); }
+  .status-error { color: var(--danger); }
+  .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 14px 0 16px; }
+  @media (min-width: 768px) { .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .metric-label { font-size: 12px; color: var(--text-3); font-weight: 500; }
+  .metric-value { font: 600 26px/1.2 var(--mono); margin-top: 4px; letter-spacing: -.02em; }
+  .metric-note { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+  .metric.accent .metric-value { color: var(--primary-text); }
+
+  /* Toolbar */
+  .toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .toolbar .search { grid-column: 1 / -1; position: relative; }
+  @media (min-width: 980px) {
+    .toolbar { grid-template-columns: minmax(220px, 2.2fr) repeat(4, minmax(110px, 1fr)) auto; }
+    .toolbar .search { grid-column: auto; }
+  }
+  .field { height: 36px; width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); padding: 0 10px; font-size: 13px; }
+  .field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+  select.field { appearance: none; -webkit-appearance: none; padding-right: 30px; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; background-size: 14px; }
+  .search .field { padding-left: 34px; }
+  .search svg.i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-3); pointer-events: none; }
+  .toggle[aria-pressed="true"] { background: var(--sand-soft); border-color: var(--sand); }
+  .toggle[aria-pressed="true"] svg.i { color: var(--sand); fill: currentColor; }
+  .toolbar .toggle { grid-column: 1 / -1; }
+  @media (min-width: 980px) { .toolbar .toggle { grid-column: auto; } }
+
+  /* Opportunity list */
+  .list-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .list-head { display: none; }
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) 32px; grid-template-areas: "main star" "tags tags" "actions actions"; gap: 10px 10px; padding: 14px 14px 14px 16px; border-top: 1px solid var(--border); align-items: start; }
+  .row:first-child { border-top: 0; }
+  .row:hover { background: color-mix(in srgb, var(--surface-2) 45%, transparent); }
+  .row .star { grid-area: star; }
+  .row .cell-main { grid-area: main; min-width: 0; }
+  .row .row-tags { grid-area: tags; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .row .cell-actions { grid-area: actions; display: flex; gap: 6px; }
+  @media (min-width: 900px) {
+    .list-head, .row { grid-template-columns: 36px minmax(0, 1fr) 96px 110px 128px 158px; grid-template-areas: none; align-items: center; gap: 12px; }
+    .list-head { display: grid; padding: 10px 16px 10px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text-3); }
+    .row { padding: 12px 16px 12px 12px; }
+    .row .star, .row .cell-main, .row .cell-actions { grid-area: auto; }
+    .row .row-tags { display: contents; }
+    .row .cell-actions { justify-content: flex-end; }
+  }
+  .row-title { display: block; width: 100%; padding: 0; margin: 0; border: 0; background: none; text-align: left; font-weight: 600; font-size: 14px; line-height: 1.35; color: var(--text); cursor: pointer; }
+  .row-title:hover { color: var(--primary-text); }
+  .row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 5px; font-size: 12px; color: var(--text-2); }
+  .row-meta .buyer { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .chip-id { font: 500 11px var(--mono); padding: 1px 6px; border-radius: 4px; background: var(--surface-2); color: var(--text-2); }
+  .src { font-size: 11px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--text-3); }
+  .star { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--text-3); border-radius: 8px; cursor: pointer; }
+  .star:hover { background: var(--surface-2); color: var(--sand); }
+  .star.on { color: var(--sand); }
+  .star.on svg.i { fill: currentColor; }
+  .grade-chip { display: inline-block; font: 500 12px var(--mono); padding: 3px 8px; border-radius: 6px; background: var(--primary-soft); color: var(--primary-text); white-space: nowrap; }
+  .grade-chip.none { background: var(--surface-2); color: var(--text-3); font-family: var(--font); }
+  .fit { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .fit::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .fit-HIGH { background: var(--high-bg); color: var(--high); }
+  .fit-MEDIUM { background: var(--med-bg); color: var(--med); }
+  .fit-LOW { background: var(--low-bg); color: var(--low); }
+  .deadline .date { font: 500 12px var(--mono); color: var(--text); }
+  .deadline .due { font-size: 12px; color: var(--text-3); }
+  .deadline.soon .due { color: var(--soon); font-weight: 500; }
+  .deadline.urgent .due { color: var(--urgent); font-weight: 600; }
+  @media (max-width: 899px) { .deadline { display: flex; gap: 6px; align-items: baseline; } }
+
+  .empty { padding: 48px 20px; text-align: center; }
+  .empty-icon { width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 12px; background: var(--primary-soft); color: var(--primary-text); display: flex; align-items: center; justify-content: center; }
+  .empty-icon svg.i { width: 20px; height: 20px; }
+  .empty h2 { font-size: 16px; font-weight: 600; }
+  .empty p { margin: 6px auto 16px; max-width: 460px; color: var(--text-2); font-size: 13px; }
+  .empty .actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .list-foot { padding: 10px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); background: var(--surface-2); }
+
+  /* Lower panels */
+  .lower { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 20px 0 8px; align-items: start; }
+  @media (min-width: 980px) { .lower { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); } }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .panel-head h2 { font-size: 14px; font-weight: 600; }
+  .panel-head .muted { font-size: 12px; }
+  summary.panel-head { list-style: none; cursor: pointer; margin: 0; }
+  summary.panel-head::-webkit-details-marker { display: none; }
+  details[open] > summary.panel-head { margin-bottom: 12px; }
+  summary.panel-head .muted { display: inline-flex; align-items: center; gap: 4px; }
+  summary .chev { width: 14px; height: 14px; transition: transform .15s; }
+  details[open] > summary .chev { transform: rotate(180deg); }
+  .bars { display: flex; flex-direction: column; gap: 2px; }
+  .bar { display: grid; grid-template-columns: 64px minmax(0, 1fr) 24px; align-items: center; gap: 10px; width: 100%; background: none; border: 0; padding: 6px; border-radius: 6px; cursor: pointer; text-align: left; }
+  .bar:hover { background: var(--surface-2); }
+  .bar.active { background: var(--primary-soft); }
+  .bar-label { font: 500 12px var(--mono); color: var(--text-2); }
+  .bar.active .bar-label { color: var(--primary-text); }
+  .bar-track { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .bar.active .bar-track { background: var(--surface); }
+  .bar-fill { display: block; height: 100%; background: var(--primary); border-radius: 4px; min-width: 2px; }
+  .bar-fill.unassigned { background: var(--border-strong); }
+  .bar-count { font: 500 12px var(--mono); text-align: right; color: var(--text-2); }
+  .panel-empty { font-size: 13px; color: var(--text-3); padding: 8px 0; }
+  .library { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  @media (min-width: 640px) { .library { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1140px) { .library { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .gcard { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--bg); display: flex; flex-direction: column; gap: 4px; }
+  .gcard-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .gcard-top .muted { text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .gcard-specs { flex-wrap: wrap; row-gap: 2px; }
+  .gcard-specs span { white-space: nowrap; }
+  .gcard-ind { font-size: 13px; font-weight: 600; }
+  .gcard-desc { font-size: 12px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .gcard-specs { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border); font: 11px var(--mono); color: var(--text-2); }
+  .foot { padding: 20px 0 40px; font-size: 12px; color: var(--text-3); }
+
+  /* Dialogs */
+  dialog { border: 0; padding: 0; background: var(--surface); color: var(--text); box-shadow: 0 24px 64px rgba(0, 0, 0, .28); }
+  dialog::backdrop { background: rgba(6, 18, 19, .55); }
+  .modal { width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 40px); border-radius: 16px; }
+  .modal-lg { width: min(900px, calc(100vw - 24px)); }
+  .drawer { margin: 0 0 0 auto; width: min(720px, 100vw); height: 100dvh; max-height: 100dvh; max-width: 100vw; border-radius: 0; }
+  .modal[open] { animation: pop .18s ease-out; }
+  .drawer[open] { animation: slidein .22s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.985); } }
+  @keyframes slidein { from { transform: translateX(24px); opacity: .4; } }
+  @media (prefers-reduced-motion: reduce) { .modal[open], .drawer[open] { animation: none; } .spinning svg.i { animation-duration: 2s; } }
+  .dlg { display: flex; flex-direction: column; height: 100%; max-height: inherit; }
+  .modal .dlg { max-height: calc(100dvh - 40px); }
+  .dlg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 20px 16px; border-bottom: 1px solid var(--border); }
+  .dlg-head h2 { font-size: 17px; font-weight: 600; line-height: 1.35; }
+  .dlg-head .sub { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+  .dlg-body { padding: 18px 20px 24px; overflow-y: auto; flex: 1; }
+  .dlg-foot { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--surface); }
+  .dlg-foot .grow { flex: 1; font-size: 12px; color: var(--text-3); min-width: 180px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .chip { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); }
+  .chip.brand { background: var(--primary-soft); color: var(--primary-text); }
+  .actionbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); }
+  .actionbar .left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .actionbar .right { display: flex; gap: 6px; flex-wrap: wrap; }
+  .section { margin-top: 22px; }
+  .section h3 { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+  .reasons { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-2); }
+  .reasons li { display: flex; gap: 8px; }
+  .reasons li::before { content: ""; width: 6px; height: 6px; margin-top: 7px; border-radius: 50%; background: var(--primary); flex: none; }
+  .reasons li.warn::before { background: var(--med); }
+  .facts { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 0; }
+  @media (min-width: 560px) { .facts { grid-template-columns: 1fr 1fr; } .facts .fact.wide, .facts .fact:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  .fact { background: var(--surface); padding: 9px 12px; min-width: 0; }
+  .fact dt { font-size: 11px; color: var(--text-3); }
+  .fact dd { margin: 2px 0 0; font-size: 13px; overflow-wrap: anywhere; }
+  .callout { padding: 12px 14px; border-radius: 10px; background: var(--surface-2); font-size: 13px; color: var(--text-2); }
+  .callout.warn { background: var(--med-bg); color: var(--text); }
+  .sow { padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow-y: auto; }
+  .spec { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: var(--bg); }
+  .spec-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .spec-top strong { font-size: 13px; }
+  .spec-top select { width: auto; height: 30px; font-size: 12px; }
+  .spec dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 12px; }
+  .spec dt { color: var(--text-3); }
+  .spec dd { margin: 0; font-family: var(--mono); }
+  .textarea { width: 100%; min-height: 96px; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--bg); resize: vertical; font-size: 13px; line-height: 1.5; }
+  .textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+  .note-status { font-size: 12px; color: var(--text-3); margin-top: 4px; min-height: 18px; }
+  .proposal-editor { font: 12.5px/1.6 var(--mono); min-height: 52vh; background: var(--bg); }
+
+  /* Settings + import */
+  .form { display: flex; flex-direction: column; gap: 18px; }
+  .form fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .form legend { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; padding: 0; }
+  .label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .hint { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+  .radio-card { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+  .radio-card:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+  .radio-card input { margin-top: 3px; accent-color: var(--primary); }
+  .radio-card strong { display: block; font-size: 13px; font-weight: 600; }
+  .radio-card span { font-size: 12px; color: var(--text-2); }
+  .grid-2 { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  @media (min-width: 520px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  .danger-zone { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
+  .dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 28px 16px; border: 2px dashed var(--border-strong); border-radius: 12px; background: var(--bg); cursor: pointer; transition: border-color .15s, background-color .15s; }
+  .dropzone:hover, .dropzone.over { border-color: var(--primary); background: var(--primary-soft); }
+  .dropzone svg.i { width: 22px; height: 22px; color: var(--primary-text); }
+  .dropzone strong { font-size: 14px; }
+  .dropzone span { font-size: 12px; color: var(--text-3); }
+  .import-help { margin-top: 14px; font-size: 12px; color: var(--text-2); }
+  .import-help code { font: 11.5px var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+  /* Platform directory */
+  .platforms { margin: 20px 0 0; }
+  .platforms .panel-head { margin-bottom: 10px; }
+  .panel-sub { margin: 4px 0 0; font-size: 13px; color: var(--text-2); max-width: 760px; }
+  .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: thin; }
+  .tab { flex: none; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .tab:hover { border-color: var(--border-strong); color: var(--text); }
+  .tab[aria-selected="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .tab .n { font: 500 11px var(--mono); opacity: .75; }
+  .pl-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  @media (min-width: 640px) { .pl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1040px) { .pl-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .pcard { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--bg); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .pcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .pcard-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+  .pcard-desc { font-size: 12.5px; color: var(--text-2); flex: 1; }
+  .pcard-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+  .tag.free { background: var(--high-bg); color: var(--high); }
+  .tag.paid { background: var(--med-bg); color: var(--med); }
+  .tag.live { background: var(--primary-soft); color: var(--primary-text); }
+  .pcard-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--border); }
+  .pcard-foot .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pcard-status { font-size: 12px; color: var(--text-3); display: inline-flex; align-items: center; gap: 6px; }
+  .pcard-status.ok { color: var(--high); }
+  .pcard-status.err { color: var(--danger); }
+  .pcard-status.off { color: var(--text-3); }
+  .checked-btn[aria-pressed="true"] { color: var(--high); }
+  .checked-btn[aria-pressed="true"] svg.i { stroke-width: 2.6; }
+
+  /* Settings extras + add form */
+  .checks { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media (min-width: 520px) { .checks { grid-template-columns: 1fr 1fr; } }
+  .check-card { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+  .check-card:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+  .check-card input, .check-row input { accent-color: var(--primary); margin-top: 3px; }
+  .check-card strong { display: block; font-size: 13px; }
+  .check-card span { font-size: 12px; color: var(--text-2); }
+  .check-card.disabled { opacity: .55; }
+  .check-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding-top: 22px; cursor: pointer; }
+  .check-row input { margin-top: 0; }
+  .req { color: var(--danger); }
+  .form-error { font-size: 13px; color: var(--danger); min-height: 18px; }
+  .linkish { border: 0; background: none; padding: 0; color: var(--primary-text); text-decoration: underline; cursor: pointer; font-size: 12px; }
+
+  /* Toasts (popover keeps them above open dialogs) */
+  #toasts { position: fixed; inset: auto 16px 16px auto; margin: 0; padding: 0; border: 0; background: transparent; width: min(420px, calc(100vw - 32px)); height: auto; overflow: visible; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; z-index: 100; color: inherit; }
+  .toast { pointer-events: auto; max-width: 100%; background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.4; box-shadow: var(--shadow); animation: pop .2s ease-out; transition: opacity .25s; }
+  .toast.error { background: var(--danger); color: #fff; }
+  .toast.warn { background: var(--med); color: #fff; }
+  .toast.out { opacity: 0; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" style="fill:var(--primary)"/>
+        <circle cx="16" cy="16" r="9.5" stroke-width="1.6" opacity=".45" style="fill:none;stroke:var(--on-primary)"/>
+        <circle cx="16" cy="16" r="5.8" stroke-width="1.6" opacity=".8" style="fill:none;stroke:var(--on-primary)"/>
+        <circle cx="16" cy="16" r="2.2" style="fill:var(--sand)"/>
+      </svg>
+      <div>
+        <h1 class="brand-name">AragoCor Opportunity Engine</h1>
+        <div class="brand-sub">Open procurement leads for oolitic aragonite</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="btn-sync" class="btn btn-primary" type="button"><svg class="i" viewBox="0 0 24 24"><use href="#i-refresh"/></svg><span id="sync-label">Sync feeds</span></button>
+      <button id="btn-add" class="btn" type="button" aria-label="Add an RFP"><svg class="i" viewBox="0 0 24 24"><use href="#i-plus"/></svg><span class="hide-sm">Add RFP</span></button>
+      <button id="btn-import" class="btn" type="button" aria-label="Import JSON"><svg class="i" viewBox="0 0 24 24"><use href="#i-upload"/></svg><span class="hide-sm">Import</span></button>
+      <button id="btn-export" class="btn" type="button" aria-label="Export open opportunities"><svg class="i" viewBox="0 0 24 24"><use href="#i-download"/></svg><span class="hide-sm">Export</span></button>
+      <button id="btn-theme" class="btn btn-icon" type="button" aria-label="Switch color theme"><svg class="i" viewBox="0 0 24 24"><use id="theme-icon" href="#i-moon"/></svg></button>
+      <button id="btn-settings" class="btn btn-icon" type="button" aria-label="Settings"><svg class="i" viewBox="0 0 24 24"><use href="#i-sliders"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <section class="metrics" aria-label="Summary">
+    <div class="metric accent"><div class="metric-label">Open opportunities</div><div class="metric-value" id="m-open">0</div><div class="metric-note" id="m-open-note">Closed notices are removed</div></div>
+    <div class="metric"><div class="metric-label">Closing in 2 weeks</div><div class="metric-value" id="m-soon">0</div><div class="metric-note" id="m-soon-note">—</div></div>
+    <div class="metric"><div class="metric-label">High fit</div><div class="metric-value" id="m-high">0</div><div class="metric-note">Carbonate + matched application</div></div>
+    <div class="metric"><div class="metric-label">Watchlist</div><div class="metric-value" id="m-watch">0</div><div class="metric-note">Starred and still open</div></div>
+  </section>
+
+  <section class="toolbar" aria-label="Filters">
+    <div class="search">
+      <svg class="i" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+      <label for="f-search" class="sr-only">Search</label>
+      <input id="f-search" class="field" type="search" placeholder="Search title, agency, solicitation #, notes…" autocomplete="off">
+    </div>
+    <div><label for="f-grade" class="sr-only">Product grade</label><select id="f-grade" class="field"></select></div>
+    <div><label for="f-fit" class="sr-only">Fit</label>
+      <select id="f-fit" class="field">
+        <option value="ALL">All fit levels</option>
+        <option value="HIGH">High fit</option>
+        <option value="MEDIUM">Medium fit</option>
+        <option value="LOW">Low fit</option>
+      </select>
+    </div>
+    <div><label for="f-source" class="sr-only">Source</label><select id="f-source" class="field"></select></div>
+    <div><label for="f-sort" class="sr-only">Sort</label>
+      <select id="f-sort" class="field">
+        <option value="deadline">Closing soonest</option>
+        <option value="fit">Best fit first</option>
+        <option value="posted">Newest posted</option>
+      </select>
+    </div>
+    <button id="f-watch" class="btn toggle" type="button" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><use href="#i-star"/></svg>Watchlist only</button>
+  </section>
+
+  <section class="list-panel" aria-label="Open opportunities">
+    <div class="list-head" aria-hidden="true">
+      <span></span><span>Opportunity</span><span>Grade</span><span>Fit</span><span>Closes</span><span></span>
+    </div>
+    <div id="list" role="list"></div>
+
+    <div id="empty-start" class="empty" hidden>
+      <div class="empty-icon"><svg class="i" viewBox="0 0 24 24"><use href="#i-search"/></svg></div>
+      <h2>No open opportunities yet</h2>
+      <p>Sync the live feeds to pull notices that are still accepting responses, or add RFPs you find on state, local and private-sector portals.</p>
+      <div class="actions">
+        <button class="btn btn-primary" type="button" data-cmd="sync"><svg class="i" viewBox="0 0 24 24"><use href="#i-refresh"/></svg>Sync feeds</button>
+        <button class="btn" type="button" data-cmd="add"><svg class="i" viewBox="0 0 24 24"><use href="#i-plus"/></svg>Add an RFP</button>
+        <button class="btn" type="button" data-cmd="import"><svg class="i" viewBox="0 0 24 24"><use href="#i-upload"/></svg>Import JSON</button>
+      </div>
+    </div>
+    <div id="empty-filter" class="empty" hidden>
+      <div class="empty-icon"><svg class="i" viewBox="0 0 24 24"><use href="#i-search"/></svg></div>
+      <h2>Nothing matches these filters</h2>
+      <p>Try a different search or clear the filters to see every open opportunity.</p>
+      <div class="actions"><button class="btn" type="button" data-cmd="clear-filters">Clear filters</button></div>
+    </div>
+    <div class="list-foot" id="list-foot" hidden></div>
+  </section>
+
+  <section class="panel platforms" aria-labelledby="pl-title">
+    <div class="panel-head">
+      <div>
+        <h2 id="pl-title">Where to find RFPs</h2>
+        <p class="panel-sub">Live feeds sync automatically. The other portals don’t offer a free data feed, so check them and log what you find — logged RFPs get the same deadline tracking.</p>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Platform categories" id="pl-tabs"></div>
+    <div class="pl-grid" id="pl-grid" role="tabpanel" aria-labelledby="pl-title"></div>
+  </section>
+
+  <section class="lower">
+    <div class="panel">
+      <div class="panel-head"><h2>Open opportunities by grade</h2><span class="muted">Tap to filter</span></div>
+      <div class="bars" id="bars"></div>
+    </div>
+    <details class="panel" id="library-panel">
+      <summary class="panel-head"><h2>Product grade library</h2><span class="muted">5 grades <svg class="i chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+      <div class="library" id="library"></div>
+    </details>
+  </section>
+
+  <footer class="foot">
+    Live data from SAM.gov, CanadaBuys, EU TED and the World Bank. Only notices with a response deadline still in the future are shown, and closed notices are removed automatically. Always confirm requirements in the official solicitation before bidding.
+  </footer>
+</main>
+
+<!-- Opportunity detail drawer -->
+<dialog id="dlg-detail" class="drawer" aria-labelledby="d-title">
+  <div class="dlg">
+    <div class="dlg-head">
+      <div style="min-width:0">
+        <div class="chips" id="d-chips"></div>
+        <h2 id="d-title"></h2>
+        <div class="sub" id="d-buyer"></div>
+      </div>
+      <button class="btn btn-icon btn-ghost" type="button" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="dlg-body">
+      <div class="actionbar">
+        <div class="left">
+          <span id="d-fit"></span>
+          <div class="deadline" id="d-deadline"></div>
+        </div>
+        <div class="right">
+          <button class="btn btn-sm" type="button" id="d-star"><svg class="i" viewBox="0 0 24 24"><use href="#i-star"/></svg><span>Watch</span></button>
+          <a class="btn btn-sm" id="d-link" href="/" target="_blank" rel="noopener noreferrer"><span id="d-link-label">View source</span><svg class="i" viewBox="0 0 24 24"><use href="#i-ext"/></svg></a>
+          <button class="btn btn-sm" type="button" id="d-hide" title="Remove from the list; feeds won’t add it back"><svg class="i" viewBox="0 0 24 24"><use href="#i-eye-off"/></svg><span>Not relevant</span></button>
+          <button class="btn btn-sm btn-primary" type="button" id="d-proposal"><svg class="i" viewBox="0 0 24 24"><use href="#i-doc"/></svg>Draft proposal</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Why it matched</h3>
+        <ul class="reasons" id="d-reasons"></ul>
+      </div>
+
+      <div class="section">
+        <h3>Notice details</h3>
+        <dl class="facts" id="d-facts"></dl>
+      </div>
+
+      <div class="section" id="d-gaps-wrap">
+        <h3>Open technical items</h3>
+        <div class="callout warn" id="d-gaps"></div>
+      </div>
+
+      <div class="section">
+        <h3>Statement of work</h3>
+        <div id="d-sow"></div>
+      </div>
+
+      <div class="section">
+        <h3>Recommended grade</h3>
+        <div class="spec">
+          <div class="spec-top">
+            <strong id="d-spec-name"></strong>
+            <label class="sr-only" for="d-grade">Change grade</label>
+            <select id="d-grade" class="field"></select>
+          </div>
+          <dl id="d-spec"></dl>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><label for="d-notes">Internal notes</label></h3>
+        <textarea id="d-notes" class="textarea" placeholder="Bid strategy, pricing target, who's handling it…"></textarea>
+        <div class="note-status" id="d-note-status"></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Proposal draft -->
+<dialog id="dlg-proposal" class="modal modal-lg" aria-labelledby="p-title">
+  <div class="dlg">
+    <div class="dlg-head">
+      <div>
+        <h2 id="p-title">Proposal draft</h2>
+        <div class="sub" id="p-sub"></div>
+      </div>
+      <button class="btn btn-icon btn-ghost" type="button" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="dlg-body">
+      <div class="callout warn" style="margin-bottom:12px">This is a starting draft. Every <strong>[bracketed]</strong> item must be filled in or confirmed against the solicitation and current test data before anything is submitted.</div>
+      <label for="p-text" class="sr-only">Proposal text</label>
+      <textarea id="p-text" class="textarea proposal-editor" spellcheck="true"></textarea>
+    </div>
+    <div class="dlg-foot">
+      <span class="grow" id="p-count"></span>
+      <button class="btn" type="button" id="p-copy"><svg class="i" viewBox="0 0 24 24"><use href="#i-copy"/></svg>Copy</button>
+      <button class="btn" type="button" id="p-md"><svg class="i" viewBox="0 0 24 24"><use href="#i-download"/></svg>.md</button>
+      <button class="btn btn-primary" type="button" id="p-txt"><svg class="i" viewBox="0 0 24 24"><use href="#i-download"/></svg>.txt</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Settings -->
+<dialog id="dlg-settings" class="modal" aria-labelledby="s-title">
+  <form class="dlg" id="settings-form" method="dialog">
+    <div class="dlg-head">
+      <h2 id="s-title">Settings</h2>
+      <button class="btn btn-icon btn-ghost" type="button" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="dlg-body form">
+      <fieldset>
+        <legend>Workspace</legend>
+        <div class="callout" id="s-workspace"></div>
+        <div class="hint">Signed in as <strong id="s-user">—</strong> · <a href="/api/health" target="_blank" rel="noopener noreferrer">System status</a></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Live feeds</legend>
+        <div class="checks" id="s-sources"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Search terms</legend>
+        <div>
+          <label class="label" for="s-keywords">Keywords (one per line)</label>
+          <textarea id="s-keywords" class="textarea" rows="4" spellcheck="false"></textarea>
+          <div class="hint" id="s-keywords-hint">Used by every feed (up to 6), and shared with everyone on the team. On SAM.gov each keyword is one request: keys on accounts without a SAM.gov role get 10 a day, keys tied to a registered entity get 1,000. Results are cached for several hours, so syncing often is fine.</div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Proposal details</legend>
+        <div>
+          <label class="label" for="s-company">Company name</label>
+          <input id="s-company" class="field" type="text" autocomplete="organization">
+        </div>
+        <div class="grid-2">
+          <div><label class="label" for="s-email">Bid contact email</label><input id="s-email" class="field" type="email" autocomplete="email"></div>
+          <div><label class="label" for="s-phone">Phone</label><input id="s-phone" class="field" type="tel" autocomplete="tel"></div>
+        </div>
+      </fieldset>
+
+      <div class="danger-zone">
+        <span>Remove the copy saved in this browser. <span id="s-clear-note">The shared workspace isn’t affected.</span> <button class="linkish" type="button" id="s-unhide" hidden></button></span>
+        <button class="btn btn-sm btn-danger" type="button" id="s-clear">Clear this browser</button>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn" type="button" data-close>Cancel</button>
+      <button class="btn btn-primary" type="submit" id="s-save">Save settings</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Import -->
+<dialog id="dlg-import" class="modal" aria-labelledby="i-title">
+  <div class="dlg">
+    <div class="dlg-head">
+      <div>
+        <h2 id="i-title">Import opportunities</h2>
+        <div class="sub">Bring in a batch of state, municipal or private RFPs alongside the live feeds.</div>
+      </div>
+      <button class="btn btn-icon btn-ghost" type="button" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="dlg-body">
+      <label class="dropzone" id="dropzone" for="file-input">
+        <svg class="i" viewBox="0 0 24 24"><use href="#i-upload"/></svg>
+        <strong>Drop a .json file here</strong>
+        <span>or click to choose a file</span>
+      </label>
+      <input type="file" id="file-input" accept=".json,application/json" class="sr-only">
+      <div class="import-help">
+        The file should be a JSON array. Each item needs a <code>notice_id</code>, <code>title</code> and <code>response_deadline</code> (YYYY-MM-DD). Anything already closed is skipped, and grade and fit are filled in automatically when missing.
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn" type="button" id="i-template"><svg class="i" viewBox="0 0 24 24"><use href="#i-download"/></svg>Download template</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Add RFP -->
+<dialog id="dlg-add" class="modal" aria-labelledby="a-title">
+  <form class="dlg" id="add-form" novalidate>
+    <div class="dlg-head">
+      <div>
+        <h2 id="a-title">Add an RFP</h2>
+        <div class="sub">Log an opportunity from any portal. It’s tracked like the live feeds and drops off after its deadline.</div>
+      </div>
+      <button class="btn btn-icon btn-ghost" type="button" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="dlg-body form">
+      <div>
+        <label class="label" for="a-titlein">Title <span class="req">*</span></label>
+        <input id="a-titlein" name="title" class="field" type="text" required autocomplete="off" placeholder="e.g. Calcium carbonate for WTP remineralization">
+      </div>
+      <div class="grid-2">
+        <div>
+          <label class="label" for="a-source">Found on</label>
+          <input id="a-source" name="source" class="field" type="text" list="a-source-list" autocomplete="off" placeholder="Portal or company">
+          <datalist id="a-source-list"></datalist>
+        </div>
+        <div>
+          <label class="label" for="a-buyer">Buyer</label>
+          <input id="a-buyer" name="buyer" class="field" type="text" autocomplete="off" placeholder="Agency or company">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label class="label" for="a-deadline">Response deadline <span class="req">*</span></label>
+          <input id="a-deadline" name="deadline" class="field" type="date" required>
+        </div>
+        <div>
+          <label class="label" for="a-time">Time <span class="muted">(optional, your time zone)</span></label>
+          <input id="a-time" name="time" class="field" type="time">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label class="label" for="a-sol">Solicitation / reference #</label>
+          <input id="a-sol" name="sol" class="field" type="text" autocomplete="off">
+        </div>
+        <div>
+          <label class="label" for="a-url">Link</label>
+          <input id="a-url" name="url" class="field" type="text" inputmode="url" autocomplete="off" placeholder="https://">
+        </div>
+      </div>
+      <div>
+        <label class="label" for="a-sow">Scope, specs or quantities</label>
+        <textarea id="a-sow" name="sow" class="textarea" rows="4" placeholder="Paste the key requirements — they’re used to suggest a grade and fit."></textarea>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label class="label" for="a-contact">Buyer contact email</label>
+          <input id="a-contact" name="contact" class="field" type="email" autocomplete="off">
+        </div>
+        <label class="check-row"><input type="checkbox" id="a-watch" name="watch" checked> Add to watchlist</label>
+      </div>
+      <div class="form-error" id="a-error" role="alert"></div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn" type="button" data-close>Cancel</button>
+      <button class="btn btn-primary" type="submit"><svg class="i" viewBox="0 0 24 24"><use href="#i-plus"/></svg>Add RFP</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toasts" popover="manual" role="status" aria-live="polite"></div>
+
+<!-- Icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+</svg>
+
+<script>
+'use strict';
+
+/* ------------------------------------------------------------------ *
+ * Product grades
+ * ------------------------------------------------------------------ */
+// Mirrors data/technical-values.json in the aragocor-site repository (registry 1.0.0, effective 2026-09-25).
+// If a value changes there, update it here to match; never add a figure that isn't in the registry.
+// A representative analysis describes a tested sample: it is never a guaranteed minimum.
+const COMMON_SPECS = [
+  ['CaCO₃', '96.17% — representative analysis, ASTM C 25'],
+  ['Elemental calcium', '38.51% — representative analysis, ASTM C 25'],
+  ['Fe₂O₃', '0.01% — representative analysis, ASTM C 25'],
+  ['Moisture as received', '5–10% — published range']
+];
+const GRADES = {
+  'WT-CAL': { industry: 'Water treatment & alkalinity', application: 'Process-water remineralization, pond preparation, alkalinity management, carbonate aggregate', sizing: '1–3 mm (published range)', document: 'TDS-WT-001', tds: 'https://www.aragocorminerals.com/tds-wt-001-wt-cal-water-treatment-and-alkalinity-media', listing: '' },
+  'GL-CAL': { industry: 'Glass batch', application: 'Glass-batch calcium carbonate source', sizing: '< 0.1 mm (published range)', document: 'TDS-GL-001', tds: 'https://www.aragocorminerals.com/tds-gl-001-gl-cal-glass-batch-feed', listing: '' },
+  'AG-CAL': { industry: 'Agriculture, turf & feed', application: 'Agricultural calcium and pH programs; turf top-dressing; feed formulations', sizing: '0.2–0.5 mm (published range)', document: 'TDS-AG-001', tds: 'https://www.aragocorminerals.com/tds-ag-001-ag-cal-agricultural-calcium', listing: 'OMRI Listed — crop fertilizer (avw-23214)' },
+  'PL-CAL': { industry: 'Polymers, coatings & fillers', application: 'Polymers, coatings and functional fillers', sizing: 'To customer specification', document: 'TDS-PL-001', tds: 'https://www.aragocorminerals.com/tds-pl-001-pl-cal-functional-filler', listing: '' },
+  'Custom': { industry: 'Custom classification', application: 'Classification to customer specification — kiln feed, proppant feed, feed rations, greens plating sand', sizing: '20–325 U.S. mesh, to customer specification', document: 'TDS-OA-001', tds: 'https://www.aragocorminerals.com/tds-oa-001-master-technical-data-sheet', listing: '' }
+};
+const GRADE_SHORT = { 'WT-CAL': 'Water', 'GL-CAL': 'Glass', 'AG-CAL': 'Agriculture', 'PL-CAL': 'Fillers', 'Custom': 'Custom' };
+
+/* ------------------------------------------------------------------ *
+ * Fit scoring — transparent keyword rules, reasons shown in the UI
+ * ------------------------------------------------------------------ */
+const CARBONATE_TERMS = [
+  ['calcium carbonate', /calcium\s+carbonate|\bcaco3\b/],
+  ['aragonite', /aragonite/],
+  ['calcite', /calcite/],
+  ['limestone', /limestone/],
+  ['agricultural lime', /\bag(?:ricultural)?[\s-]?lime\b|\baglime\b/],
+  ['whiting', /\bwhiting\b/],
+  ['oolitic material', /oolit/]
+];
+const LIME_TERM = /\blime\b/;
+const POOR_FIT = [
+  ['calls for hydrated lime or quicklime (CaO / Ca(OH)₂), not carbonate', /hydrated\s+lime|quick\s?lime|calcium\s+(?:hydroxide|oxide)|lime\s+slurry|slaked\s+lime/],
+  ['looks like construction aggregate or road base', /\baggregate|\bgravel\b|rip[\s-]?rap|road\s+base|base\s+course|crushed\s+(?:stone|rock)|asphalt/]
+];
+const GRADE_TERMS = {
+  'WT-CAL': /water\s+treatment|remineral|drinking\s+water|potable|corrosion\s+control|\bph\s+(?:adjust|control|stabil)|calcite\s+contactor|reverse\s+osmosis|water\s+(?:plant|system|utility)|wtp\b|alkalinity|aquacultur|\bponds?\b|acid\s+mine|\bamd\b|neutraliz|acid\s+(?:rain|drainage)|\blakes?\b|\bstreams?\b/g,
+  'GL-CAL': /\bglass\b|fiberglass|fiber\s+optic|batch\s+(?:melt|house)/g,
+  'AG-CAL': /agricultur|\bsoil\b|aglime|\bag\s+lime|\bliming\b|\bcrops?\b|\bturf\b|\blawn\b|fertiliz|pasture|livestock|poultry|\bfeed\s+(?:grade|mill|ration)/g,
+  'PL-CAL': /plastic|polymer|polypropylene|polyethylene|\bpvc\b|masterbatch|\bfiller\b|\bpaints?\b|coating|pigment|\binks?\b|extender|rubber|elastomer|\bpaper\b|\bpulp\b/g,
+  'Custom': /flue\s+gas|\bfgd\b|desulfur|scrubber|\bso2\b|refractor|\bflux\b|\bslag\b|foundry|\bkiln\b|smelt|furnace|concrete|cement|mortar|stucco|grout|masonry|proppant|greens?\s+(?:sand|plating)/g
+};
+const FIT_RANK = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+const FIT_LABEL = { HIGH: 'High fit', MEDIUM: 'Medium fit', LOW: 'Low fit' };
+
+function scoreOpportunity(o) {
+  const text = [o.title, o.matched_industry, o.sow_text, o.technical_gaps].filter(Boolean).join(' ').toLowerCase();
+  const reasons = [];
+  let score = 0;
+
+  const carbonates = CARBONATE_TERMS.filter(([, re]) => re.test(text)).map(([label]) => label);
+  if (carbonates.length) {
+    score += 2;
+    reasons.push({ text: 'Mentions ' + carbonates.slice(0, 2).join(' and ') });
+  } else if (LIME_TERM.test(text)) {
+    score += 1;
+    reasons.push({ text: 'Mentions lime — confirm it means calcium carbonate', warn: true });
+  }
+
+  let grade = null, best = 0;
+  for (const [g, re] of Object.entries(GRADE_TERMS)) {
+    const hits = (text.match(re) || []).length;
+    if (hits > best) { best = hits; grade = g; }
+  }
+  if (grade) {
+    score += 1;
+    reasons.push({ text: 'Application points to ' + GRADES[grade].industry.toLowerCase() + ' (' + grade + ')' });
+  } else {
+    reasons.push({ text: 'No specific application found — pick a grade after reading the solicitation', warn: true });
+  }
+
+  for (const [label, re] of POOR_FIT) {
+    if (re.test(text)) { score -= 2; reasons.push({ text: 'Weaker fit: ' + label, warn: true }); }
+  }
+
+  const fit = score >= 3 ? 'HIGH' : score >= 1 ? 'MEDIUM' : 'LOW';
+  return { grade, fit, reasons };
+}
+
+function normFit(value) {
+  const v = String(value || '').toUpperCase();
+  if (v === 'HIGH' || v === 'MEDIUM' || v === 'LOW') return v;
+  if (v === 'GAP') return 'LOW';
+  return null;
+}
+
+/* ------------------------------------------------------------------ *
+ * Storage
+ * ------------------------------------------------------------------ */
+const KEYS = { opps: 'aragocor.opps.v2', stars: 'aragocor.stars.v2', notes: 'aragocor.notes.v2', settings: 'aragocor.settings.v2', sync: 'aragocor.sync.v2', theme: 'aragocor.theme', checked: 'aragocor.checked.v1', hidden: 'aragocor.hidden.v1', queue: 'aragocor.wsqueue.v1', linked: 'aragocor.wslinked.v1' };
+const LEGACY = { opps: 'aragocor_opps_data', stars: 'aragocor_starred_ids', notes: 'aragocor_notes_map', key: 'aragocor_sam_key' };
+// Demo records that shipped with the earlier version — never carried forward.
+const LEGACY_DEMO_IDS = new Set(['SOL-2026-WT-8841', 'GLS-RFP-0921-2026', 'USA-SUB-2026-4412', 'SLED-FL-2026-003', 'SOL-2026-PL-9912']);
+
+/* ------------------------------------------------------------------ *
+ * Live feeds (pulled by the server route) and the wider platform directory
+ * ------------------------------------------------------------------ */
+const FEEDS = {
+  sam: { label: 'SAM.gov', region: 'US federal' },
+  canadabuys: { label: 'CanadaBuys', region: 'Canada federal' },
+  ted: { label: 'EU TED', region: 'EU & EEA' },
+  worldbank: { label: 'World Bank', region: 'Development projects worldwide' }
+};
+const FEED_IDS = Object.keys(FEEDS);
+
+const PLATFORM_GROUPS = [
+  { id: 'live', label: 'Live feeds' },
+  { id: 'local', label: 'US state & local' },
+  { id: 'federal', label: 'More US federal' },
+  { id: 'intl', label: 'International' },
+  { id: 'private', label: 'Private sector & construction' },
+  { id: 'paid', label: 'Paid aggregators' }
+];
+
+// cost: 'free' | 'signup' | 'paid' | 'holders'   sector: 'Government' | 'Private' | 'Public + private'
+const PLATFORMS = [
+  { id: 'sam', feed: 'sam', group: 'live', name: 'SAM.gov', url: 'https://sam.gov/search/?index=opp', cost: 'free', sector: 'Government', desc: 'Every US federal solicitation over $25,000, plus many smaller buys. Bidding needs a SAM registration.' },
+  { id: 'canadabuys', feed: 'canadabuys', group: 'live', name: 'CanadaBuys', url: 'https://canadabuys.canada.ca/en/tender-opportunities', cost: 'free', sector: 'Government', desc: 'Government of Canada tenders, published as open data and refreshed daily.' },
+  { id: 'ted', feed: 'ted', group: 'live', name: 'EU TED', url: 'https://ted.europa.eu/', cost: 'free', sector: 'Government', desc: 'Tenders Electronic Daily — public contracts from EU and EEA countries, including water utilities.' },
+  { id: 'worldbank', feed: 'worldbank', group: 'live', name: 'World Bank', url: 'https://projects.worldbank.org/en/projects-operations/procurement', cost: 'free', sector: 'Government', desc: 'Goods and works tenders on World Bank–financed projects, including the Caribbean and Latin America.' },
+
+  { id: 'bidnet', group: 'local', name: 'BidNet Direct', url: 'https://www.bidnetdirect.com/', cost: 'signup', sector: 'Government', desc: 'Cities, counties, school districts and water utilities in many states. Free for your region; wider alerts are paid.' },
+  { id: 'demandstar', group: 'local', name: 'DemandStar', url: 'https://www.demandstar.com/', cost: 'signup', sector: 'Government', desc: 'Local governments and utilities post bids here. Free for one agency; following more is paid.' },
+  { id: 'planetbids', group: 'local', name: 'PlanetBids', url: 'https://www.planetbids.com/', cost: 'signup', sector: 'Government', desc: 'Used by many California cities, counties and water districts. Register free on each agency’s portal.' },
+  { id: 'bonfire', group: 'local', name: 'Bonfire', url: 'https://gobonfire.com/', cost: 'signup', sector: 'Government', desc: 'Bid portals for cities, universities and utilities. Free supplier registration per agency.' },
+  { id: 'opengov', group: 'local', name: 'OpenGov Procurement', url: 'https://opengov.com/products/procurement/suppliers/', cost: 'signup', sector: 'Government', desc: 'Procurement portals for local agencies. Free supplier account.' },
+  { id: 'publicpurchase', group: 'local', name: 'Public Purchase', url: 'https://www.publicpurchase.com/', cost: 'signup', sector: 'Government', desc: 'Local government bids; free registration with the agencies that use it.' },
+  { id: 'bidx', group: 'local', name: 'BidExpress', url: 'https://www.bidx.com/', cost: 'paid', sector: 'Government', desc: 'State DOT and county bids, including road materials and aggregates. Subscription to bid.' },
+  { id: 'caleprocure', group: 'local', name: 'Cal eProcure', url: 'https://caleprocure.ca.gov/', cost: 'free', sector: 'Government', desc: 'California state department solicitations.' },
+  { id: 'floridavip', group: 'local', name: 'Florida Vendor Information Portal', url: 'https://vendor.myfloridamarketplace.com/', cost: 'free', sector: 'Government', desc: 'Florida state agency solicitations (formerly the Vendor Bid System).' },
+  { id: 'esbd', group: 'local', name: 'Texas ESBD', url: 'https://www.txsmartbuy.gov/esbd', cost: 'free', sector: 'Government', desc: 'Texas Electronic State Business Daily — state agency and many local bids.' },
+
+  { id: 'dibbs', group: 'federal', name: 'DLA DIBBS', url: 'https://www.dibbs.bsm.dla.mil/', cost: 'free', sector: 'Government', desc: 'Defense Logistics Agency quote requests for supplies, including small buys that never reach SAM.gov. Needs a CAGE code.' },
+  { id: 'ebuy', group: 'federal', name: 'GSA eBuy', url: 'https://www.ebuy.gsa.gov/', cost: 'holders', sector: 'Government', desc: 'Quote requests visible only to GSA Schedule holders — worth it if AragoCor gets a Schedule contract.' },
+  { id: 'unison', group: 'federal', name: 'Unison Marketplace', url: 'https://www.unisonglobal.com/product/marketplace', cost: 'signup', sector: 'Government', desc: 'Reverse auctions federal agencies use for commodity buys.' },
+
+  { id: 'findtender', group: 'intl', name: 'UK Find a Tender', url: 'https://www.find-tender.service.gov.uk/', cost: 'free', sector: 'Government', desc: 'Higher-value UK public tenders. Its data feed has no keyword search, so check it directly.' },
+  { id: 'contractsfinder', group: 'intl', name: 'UK Contracts Finder', url: 'https://www.contractsfinder.service.gov.uk/', cost: 'free', sector: 'Government', desc: 'Lower-value UK public-sector opportunities.' },
+  { id: 'ungm', group: 'intl', name: 'UN Global Marketplace', url: 'https://www.ungm.org/', cost: 'signup', sector: 'Government', desc: 'Tenders from UN agencies. Free registration; tender alerts are paid.' },
+  { id: 'idb', group: 'intl', name: 'Inter-American Development Bank', url: 'https://www.iadb.org/en/how-we-can-work-together/procurement/procurement-projects/procurement-notices', cost: 'free', sector: 'Government', desc: 'Procurement on IDB-financed projects across Latin America and the Caribbean.' },
+  { id: 'cdb', group: 'intl', name: 'Caribbean Development Bank', url: 'https://www.caribank.org/work-with-us/procurement/procurement-notices', cost: 'free', sector: 'Government', desc: 'Project procurement across CDB member countries.' },
+
+  { id: 'ariba', group: 'private', name: 'SAP Business Network Discovery', url: 'https://service.ariba.com/Discovery.aw/ad/busOpp', cost: 'signup', sector: 'Private', desc: 'Large companies post sourcing requests here (formerly Ariba Discovery). Free supplier account.' },
+  { id: 'alibaba', group: 'private', name: 'Alibaba.com RFQ', url: 'https://seller.alibaba.com/rfq', cost: 'paid', sector: 'Private', desc: 'Buyers worldwide post bulk-material requests for quotation. Quoting needs a paid supplier membership.' },
+  { id: 'buildingconnected', group: 'private', name: 'BuildingConnected', url: 'https://www.buildingconnected.com/', cost: 'signup', sector: 'Public + private', desc: 'General contractors invite subs and suppliers to bid on private and public jobs. Free for bidders.' },
+  { id: 'planhub', group: 'private', name: 'PlanHub', url: 'https://planhub.com/', cost: 'signup', sector: 'Public + private', desc: 'Construction projects open to subcontractors and suppliers; free tier available.' },
+  { id: 'bluebook', group: 'private', name: 'The Blue Book', url: 'https://www.thebluebook.com/', cost: 'signup', sector: 'Public + private', desc: 'Construction network where contractors send bid invitations; free company listing.' },
+  { id: 'constructconnect', group: 'private', name: 'ConstructConnect', url: 'https://www.constructconnect.com/', cost: 'paid', sector: 'Public + private', desc: 'Private and public construction projects with plans, specs and bid dates. Subscription.' },
+  { id: 'dodge', group: 'private', name: 'Dodge Construction Network', url: 'https://www.construction.com/', cost: 'paid', sector: 'Public + private', desc: 'Early-stage private and public construction project leads. Subscription.' },
+
+  { id: 'govspend', group: 'paid', name: 'GovSpend', url: 'https://govspend.com/', cost: 'paid', sector: 'Government', desc: 'State and local bids plus past purchase orders — shows who already buys calcium carbonate and at what price.' },
+  { id: 'bidprime', group: 'paid', name: 'BidPrime', url: 'https://www.bidprime.com/', cost: 'paid', sector: 'Government', desc: 'Keyword alerts across federal, state and local bids.' },
+  { id: 'govtribe', group: 'paid', name: 'GovTribe', url: 'https://govtribe.com/', cost: 'paid', sector: 'Government', desc: 'Federal and state/local opportunities with pipeline tracking and an API.' },
+  { id: 'highergov', group: 'paid', name: 'HigherGov', url: 'https://www.highergov.com/', cost: 'paid', sector: 'Government', desc: 'Federal, state and local opportunities and grants, with alerts and an API.' },
+  { id: 'openopps', group: 'paid', name: 'Open Opportunities', url: 'https://openopps.com/', cost: 'paid', sector: 'Government', desc: 'Global tender search across hundreds of government sources, including development banks.' },
+  { id: 'govwin', group: 'paid', name: 'Deltek GovWin IQ', url: 'https://www.deltek.com/en/government-contracting/govwin', cost: 'paid', sector: 'Government', desc: 'Deep federal and state/local pipeline intelligence; enterprise pricing.' }
+];
+const COST_LABEL = { free: 'Free', signup: 'Free sign-up', paid: 'Paid', holders: 'Contract holders' };
+
+const DEFAULT_SETTINGS = {
+  mode: 'proxy',
+  proxyUrl: '/api/opportunities',
+  sources: [...FEED_IDS],
+  apiKey: '',
+  keywords: ['calcium carbonate', 'limestone', 'aragonite', 'lime'],
+  company: 'AragoCor Minerals',
+  email: '',
+  phone: '+1 (209) 487-0110'
+};
+const MAX_KEYWORDS = 6;
+const AUTO_SYNC_AFTER_MS = 30 * 60 * 1000; // the server caches each feed, so this is cheap
+const FEEDS_URL = '/api/opportunities';
+const STATE_URL = '/api/state';
+
+const store = {
+  read(key, fallback) {
+    try { const raw = localStorage.getItem(key); return raw == null ? fallback : JSON.parse(raw); } catch { return fallback; }
+  },
+  raw(key) { try { return localStorage.getItem(key); } catch { return null; } },
+  write(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage full or blocked */ } },
+  remove(key) { try { localStorage.removeItem(key); } catch { /* ignore */ } }
+};
+
+const state = {
+  opps: [],
+  stars: new Set(),
+  notes: {},
+  settings: { ...DEFAULT_SETTINGS },
+  sync: { at: null, count: 0, error: '', partial: false, sources: {} },
+  checked: {},
+  hidden: new Set(),
+  platformTab: 'live',
+  filters: { q: '', grade: 'ALL', fit: 'ALL', source: 'ALL', sort: 'deadline', watch: false },
+  activeId: null,
+  syncing: false
+};
+
+function persist() {
+  store.write(KEYS.opps, state.opps);
+  store.write(KEYS.stars, [...state.stars]);
+  store.write(KEYS.notes, state.notes);
+  store.write(KEYS.hidden, [...state.hidden].slice(-3000));
+}
+
+function loadState() {
+  migrateLegacy();
+  const opps = store.read(KEYS.opps, []);
+  state.opps = Array.isArray(opps) ? opps.filter(o => o && o.notice_id) : [];
+  state.stars = new Set(store.read(KEYS.stars, []));
+  const notes = store.read(KEYS.notes, {});
+  state.notes = notes && typeof notes === 'object' ? notes : {};
+  state.settings = { ...DEFAULT_SETTINGS, ...(store.read(KEYS.settings, {}) || {}) };
+  if (!Array.isArray(state.settings.keywords) || !state.settings.keywords.length) state.settings.keywords = [...DEFAULT_SETTINGS.keywords];
+  if (state.settings.proxyUrl === '/api/sam-opportunities') state.settings.proxyUrl = DEFAULT_SETTINGS.proxyUrl; // earlier route name
+  if (!Array.isArray(state.settings.sources)) state.settings.sources = [...FEED_IDS];
+  state.settings.sources = state.settings.sources.filter(f => FEEDS[f]);
+  state.sync = { ...state.sync, ...(store.read(KEYS.sync, {}) || {}) };
+  if (!state.sync.sources || typeof state.sync.sources !== 'object') state.sync.sources = {};
+  const checked = store.read(KEYS.checked, {});
+  state.checked = checked && typeof checked === 'object' ? checked : {};
+  const hidden = store.read(KEYS.hidden, []);
+  state.hidden = new Set(Array.isArray(hidden) ? hidden : []);
+}
+
+// One-time move from the earlier version's storage. Keeps the user's own imports,
+// stars, notes and API key; drops the built-in demo records and old SAM.gov rows
+// (those were stored with placeholder grades and deadlines and will be re-synced).
+function migrateLegacy() {
+  if (store.raw(KEYS.opps) !== null) return;
+  const hadLegacy = [LEGACY.opps, LEGACY.stars, LEGACY.notes, LEGACY.key].some(k => store.raw(k) !== null);
+  if (!hadLegacy) return;
+
+  const oldOpps = store.read(LEGACY.opps, []);
+  const kept = (Array.isArray(oldOpps) ? oldOpps : [])
+    .filter(o => o && !LEGACY_DEMO_IDS.has(o.notice_id))
+    .filter(o => !/sam\.gov|usaspending/i.test(String(o.source || '')))
+    .map(fromImport).filter(Boolean);
+  store.write(KEYS.opps, kept);
+
+  const keptIds = new Set(kept.map(o => o.notice_id));
+  const oldStars = store.read(LEGACY.stars, []);
+  store.write(KEYS.stars, (Array.isArray(oldStars) ? oldStars : []).filter(id => keptIds.has(id)));
+  const oldNotes = store.read(LEGACY.notes, {}) || {};
+  const notes = {};
+  for (const [id, text] of Object.entries(oldNotes)) if (keptIds.has(id) && text) notes[id] = String(text);
+  store.write(KEYS.notes, notes);
+
+  // The old browser-stored SAM.gov key is not carried over: the key now lives on the server.
+
+  Object.values(LEGACY).forEach(k => store.remove(k));
+}
+
+/* ------------------------------------------------------------------ *
+ * Dates
+ * ------------------------------------------------------------------ */
+function parseDate(value, endOfDay = true) {
+  if (!value) return null;
+  const s = String(value).trim();
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return endOfDay ? new Date(+m[1], +m[2] - 1, +m[3], 23, 59, 59) : new Date(+m[1], +m[2] - 1, +m[3]);
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return endOfDay ? new Date(+m[3], +m[1] - 1, +m[2], 23, 59, 59) : new Date(+m[3], +m[1] - 1, +m[2]);
+  const normalized = s.replace(' ', 'T').replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
+  const t = Date.parse(normalized);
+  return Number.isNaN(t) ? null : new Date(t);
+}
+const deadlineOf = o => parseDate(o.response_deadline, true);
+
+function isOpen(o, now) {
+  if (o.active === false) return false;
+  const d = deadlineOf(o);
+  return d ? d.getTime() > now.getTime() : true; // no deadline listed: keep, flagged in the UI
+}
+
+function calendarDaysUntil(d, now) {
+  const a = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const b = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((b - a) / 86400000);
+}
+function dueLabel(d, now) {
+  const n = calendarDaysUntil(d, now);
+  if (n <= 0) return 'Closes today';
+  if (n === 1) return 'Closes tomorrow';
+  return n + ' days left';
+}
+function urgencyClass(d, now) {
+  const n = calendarDaysUntil(d, now);
+  return n <= 3 ? 'urgent' : n <= 10 ? 'soon' : '';
+}
+const fmtDate = d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+function fmtDateTime(d, raw) {
+  const hasTime = /T\d{2}:\d{2}/.test(String(raw || ''));
+  return hasTime ? d.toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : fmtDate(d);
+}
+function relTime(iso) {
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return '';
+  const mins = Math.round((Date.now() - t) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + ' min ago';
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return hrs + ' h ago';
+  const days = Math.round(hrs / 24);
+  return days + (days === 1 ? ' day ago' : ' days ago');
+}
+const isoDay = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+/* ------------------------------------------------------------------ *
+ * Normalizing records
+ * ------------------------------------------------------------------ */
+const str = v => (v == null ? '' : String(v).trim());
+function safeUrl(value) {
+  try { const u = new URL(String(value)); return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : ''; } catch { return ''; }
+}
+
+function fromSam(item) {
+  const pop = item.placeOfPerformance || {};
+  const place = [pop.city && pop.city.name, pop.state && (pop.state.code || pop.state.name)].filter(Boolean).join(', ');
+  const contacts = Array.isArray(item.pointOfContact) ? item.pointOfContact.filter(Boolean) : [];
+  const poc = contacts.find(p => p.type === 'primary') || contacts[0] || null;
+  const path = str(item.fullParentPathName || item.department).split('.').map(s => s.trim()).filter(Boolean);
+  const o = {
+    feed: 'sam',
+    notice_id: str(item.noticeId),
+    title: str(item.title) || 'Untitled notice',
+    buyer: path.length > 1 ? path[0] + ' › ' + path[path.length - 1] : (path[0] || ''),
+    source: 'SAM.gov',
+    solicitation_number: str(item.solicitationNumber),
+    notice_type: str(item.type),
+    posted_date: str(item.postedDate),
+    response_deadline: str(item.responseDeadLine || item.reponseDeadLine),
+    naics: str(item.naicsCode),
+    psc: str(item.classificationCode),
+    set_aside: str(item.typeOfSetAsideDescription || item.setAside),
+    place_of_performance: place,
+    contact: poc ? { name: str(poc.fullName || poc.fullname), email: str(poc.email), phone: str(poc.phone) } : null,
+    url: 'https://sam.gov/opp/' + encodeURIComponent(str(item.noticeId)) + '/view',
+    matched_keyword: str(item.matchedKeyword),
+    sow_text: '',
+    technical_gaps: '',
+    active: str(item.active).toLowerCase() !== 'no'
+  };
+  const s = scoreOpportunity(o);
+  o.suggested_grade = s.grade;
+  o.fit_status = s.fit;
+  o.fit_reasons = s.reasons;
+  return o;
+}
+
+function fromImport(item) {
+  if (!item || typeof item !== 'object') return null;
+  const id = str(item.notice_id || item.noticeId || item.id);
+  if (!id) return null;
+  const c = item.contact && typeof item.contact === 'object' ? item.contact : null;
+  const feed = FEEDS[item.feed] ? item.feed : null;
+  const o = {
+    feed,
+    notice_id: id,
+    title: str(item.title) || 'Untitled opportunity',
+    buyer: str(item.buyer || item.agency),
+    source: feed ? FEEDS[feed].label : /sam\.gov/i.test(str(item.source)) ? 'SAM.gov' : (str(item.source) || 'Imported'),
+    region: str(item.region),
+    solicitation_number: str(item.solicitation_number),
+    notice_type: str(item.notice_type),
+    posted_date: str(item.posted_date),
+    response_deadline: str(item.response_deadline || item.responseDeadLine || item.deadline),
+    naics: str(item.naics),
+    psc: str(item.psc),
+    set_aside: str(item.set_aside),
+    place_of_performance: str(item.place_of_performance),
+    contact: c ? { name: str(c.name), email: str(c.email), phone: str(c.phone) } : null,
+    url: safeUrl(item.url),
+    matched_keyword: str(item.matched_keyword),
+    matched_industry: str(item.matched_industry),
+    sow_text: str(item.sow_text),
+    technical_gaps: str(item.technical_gaps),
+    added_by: str(item.added_by).slice(0, 60),
+    added_at: str(item.added_at),
+    active: item.active !== false
+  };
+  const s = scoreOpportunity(o);
+  const fileGrade = GRADES[item.suggested_grade] ? item.suggested_grade : null;
+  const fileFit = normFit(item.fit_status);
+  o.suggested_grade = fileGrade || s.grade;
+  o.fit_status = fileFit || s.fit;
+  o.fit_reasons = fileFit ? [{ text: 'Fit level set in the imported file' }].concat(s.reasons) : s.reasons;
+  if (GRADES[item.grade_override]) o.grade_override = item.grade_override;
+  return o;
+}
+
+const gradeOf = o => (GRADES[o.grade_override] ? o.grade_override : GRADES[o.suggested_grade] ? o.suggested_grade : null);
+const feedOf = o => (o.feed && FEEDS[o.feed] ? o.feed : o.source === 'SAM.gov' ? 'sam' : null);
+
+/* ------------------------------------------------------------------ *
+ * Open-only housekeeping
+ * ------------------------------------------------------------------ */
+function pruneClosed() {
+  const now = new Date();
+  const removed = state.opps.filter(o => !isOpen(o, now));
+  if (!removed.length) return 0;
+  const gone = new Set(removed.map(o => o.notice_id));
+  state.opps = state.opps.filter(o => !gone.has(o.notice_id));
+  gone.forEach(id => { state.stars.delete(id); delete state.notes[id]; });
+  persist();
+  wsPush([...gone].map(id => ({ op: 'forget', id })));
+  if (state.activeId && gone.has(state.activeId)) {
+    ['#dlg-detail', '#dlg-proposal'].forEach(sel => { const d = document.querySelector(sel); if (d && d.open) d.close(); });
+    state.activeId = null;
+  }
+  return removed.length;
+}
+
+/* ------------------------------------------------------------------ *
+ * SAM.gov sync
+ * ------------------------------------------------------------------ */
+async function fetchViaRoute(settings) {
+  const url = new URL(FEEDS_URL, location.href);
+  url.searchParams.set('keywords', settings.keywords.join(','));
+  url.searchParams.set('sources', settings.sources.join(','));
+  let res;
+  try { res = await fetch(url.href, { headers: { Accept: 'application/json' }, cache: 'no-store' }); }
+  catch { throw new Error('Couldn’t reach the server. Check your connection and try again.'); }
+  if (res.status === 401) throw new Error('Your sign-in has expired — reload the page to sign in again.');
+  if (res.status === 404) throw new Error('The feeds service isn’t deployed with this page (missing ' + url.pathname + ').');
+  let data = null;
+  try { data = await res.json(); } catch { /* handled below */ }
+  if (!data || typeof data !== 'object') throw new Error('The feeds service returned an unexpected response (' + res.status + ').');
+  if (!res.ok) throw new Error(data.error || ('Feeds service error (' + res.status + ').'));
+  const errors = Array.isArray(data.errors) ? data.errors : [];
+  const items = (Array.isArray(data.opportunities) ? data.opportunities : []).map(fromImport).filter(Boolean);
+  const sources = data.sources && typeof data.sources === 'object' ? data.sources : {};
+  if (Array.isArray(data.keywords)) state.serverKeywords = { list: data.keywords, locked: !!data.keywordsLocked };
+  return { items, errors, sources };
+}
+
+async function syncFeeds({ auto = false } = {}) {
+  if (state.syncing) return;
+  const s = state.settings;
+  state.syncing = true;
+  setSyncing(true);
+  try {
+    if (!s.sources.length) {
+      if (!auto) { toast('Turn on at least one live feed in Settings.', 'warn'); openSettings(); }
+      return;
+    }
+    const result = await fetchViaRoute(s);
+    const now = new Date();
+    const wanted = f => s.sources.includes(f);
+    const fresh = result.items.filter(o => o.notice_id && isOpen(o, now) && !state.hidden.has(o.notice_id) && (!feedOf(o) || wanted(feedOf(o))));
+    const okFeeds = Object.entries(result.sources).filter(([, v]) => v && v.ok).map(([k]) => k).filter(k => FEEDS[k]);
+    const drop = new Set(okFeeds);
+    FEED_IDS.filter(f => !s.sources.includes(f)).forEach(f => drop.add(f)); // feeds you turned off
+    mergeFeeds(fresh, drop);
+    const failed = Object.entries(result.sources).filter(([, v]) => v && !v.ok);
+    const limited = result.errors.some(e => e.status === 429);
+    state.sync = { at: now.toISOString(), count: fresh.length, error: '', partial: failed.length > 0, sources: { ...state.sync.sources, ...result.sources, _at: now.toISOString() } };
+    store.write(KEYS.sync, state.sync);
+    render();
+    if (!auto || failed.length) {
+      const bySource = FEED_IDS.filter(f => result.sources[f] && result.sources[f].ok).map(f => FEEDS[f].label + ' ' + fresh.filter(o => feedOf(o) === f).length);
+      const parts = [fresh.length ? 'Synced ' + fresh.length + ' open ' + (fresh.length === 1 ? 'notice' : 'notices') + (bySource.length > 1 ? ' (' + bySource.join(', ') + ')' : '') : 'Sync complete — no open notices match your keywords right now'];
+      if (limited) parts.push('SAM.gov’s daily request limit was reached, so some keywords were skipped');
+      const failedOther = failed.filter(([k]) => !(limited && k === 'sam'));
+      if (failedOther.length) parts.push('Didn’t load: ' + failedOther.map(([k, v]) => (FEEDS[k] ? FEEDS[k].label : k) + (v.error ? ' (' + v.error.replace(/\.$/, '') + ')' : '')).join('; '));
+      toast(parts.join('. ') + '.', failed.length ? 'warn' : 'info');
+    }
+  } catch (err) {
+    state.sync = { ...state.sync, error: err.message || 'Sync failed.' };
+    store.write(KEYS.sync, state.sync);
+    renderStatus();
+    if (!auto) toast(state.sync.error, 'error');
+  } finally {
+    state.syncing = false;
+    setSyncing(false);
+  }
+}
+
+// Rows the team is working on (starred, noted or given a grade) stay until they close,
+// even if a feed stops listing them — e.g. after a keyword change.
+const isPinned = o => state.stars.has(o.notice_id) || !!state.notes[o.notice_id] || !!o.grade_override;
+
+// Replaces rows from feeds that synced cleanly (and feeds that were switched off).
+// Rows you added or imported are never touched; rows from a feed that failed are kept until it works again.
+function mergeFeeds(fresh, replaceFeeds) {
+  const prev = new Map(state.opps.map(o => [o.notice_id, o]));
+  fresh.forEach(o => { const p = prev.get(o.notice_id); if (p && p.grade_override) o.grade_override = p.grade_override; });
+  const freshIds = new Set(fresh.map(o => o.notice_id));
+  const keep = state.opps.filter(o => !freshIds.has(o.notice_id) && (!(feedOf(o) && replaceFeeds.has(feedOf(o))) || isPinned(o)));
+  state.opps = keep.concat(fresh);
+  persist();
+}
+
+function setSyncing(on) {
+  const btn = $('#btn-sync');
+  btn.disabled = on;
+  btn.classList.toggle('spinning', on);
+  $('#sync-label').textContent = on ? 'Syncing…' : 'Sync feeds';
+  document.querySelectorAll('[data-cmd="sync"]').forEach(b => { b.disabled = on; });
+  if (on) renderStatus('Syncing live feeds…');
+}
+
+/* ------------------------------------------------------------------ *
+ * Shared workspace (api/state.js)
+ *
+ * Every change is applied locally first, then queued and sent to the server.
+ * The queue survives reloads and going offline. Pulls bring in teammates'
+ * changes; queued changes are re-applied on top so nothing unsent is lost.
+ * Without a database the server answers { configured: false } and the
+ * dashboard runs from this browser alone.
+ * ------------------------------------------------------------------ */
+const ws = { mode: 'unknown', user: '', queue: [], flushing: false, timer: null, retry: 0, lastPull: 0, pulling: null };
+const WS_LABEL = {
+  unknown: { text: 'Connecting…', title: 'Checking the shared workspace…' },
+  shared: { text: 'Shared workspace', cls: '', title: 'Stars, notes, logged RFPs and settings are saved to the shared workspace and sync for everyone who signs in.' },
+  offline: { text: 'Offline — changes will sync', cls: 'status-error', title: 'The shared workspace can’t be reached. Changes are kept in this browser and sent when it’s back.' },
+  local: { text: 'Saved in this browser only', cls: 'status-error', title: 'No shared storage is set up, so everything is saved in this browser only. Connect Upstash Redis to the Vercel project to share it across devices and people.' }
+};
+
+function rowSnapshot(o) {
+  const out = { ...o };
+  delete out.fit_reasons;
+  return out;
+}
+// Feed rows are saved to the workspace only while someone is working on them; logged rows always are.
+function pinOp(o) {
+  return { op: 'row', id: o.notice_id, value: !feedOf(o) || isPinned(o) ? rowSnapshot(o) : null };
+}
+function sharedSettings() {
+  const s = state.settings;
+  return { keywords: s.keywords, sources: s.sources, company: s.company, email: s.email, phone: s.phone };
+}
+
+function wsPush(ops) {
+  const list = (ops || []).filter(Boolean);
+  if (!list.length || ws.mode === 'local') return;
+  ws.queue.push(...list);
+  store.write(KEYS.queue, ws.queue);
+  clearTimeout(ws.timer);
+  ws.timer = setTimeout(wsFlush, 400);
+  renderStatus();
+}
+
+async function wsFlush({ beacon = false } = {}) {
+  if (!ws.queue.length || ws.mode === 'local' || ws.mode === 'unknown') return;
+  if (beacon) {
+    // Page is closing: hand the remaining changes to the browser to deliver.
+    try {
+      const blob = new Blob([JSON.stringify({ ops: ws.queue.slice(0, 1000) })], { type: 'application/json' });
+      if (navigator.sendBeacon && navigator.sendBeacon(STATE_URL, blob)) { /* keep the queue until a pull confirms */ }
+    } catch { /* ignore */ }
+    return;
+  }
+  if (ws.flushing) return;
+  ws.flushing = true;
+  const batch = ws.queue.slice(0, 500);
+  try {
+    const res = await fetch(STATE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ops: batch }) });
+    if (res.status === 501) { ws.mode = 'local'; ws.queue = []; store.write(KEYS.queue, []); return; }
+    if (res.status === 400) { // a change the server won't accept: drop it rather than retry forever
+      console.warn('Workspace rejected a change:', await res.text());
+      ws.queue = ws.queue.slice(batch.length);
+    } else if (!res.ok) throw new Error('HTTP ' + res.status);
+    else ws.queue = ws.queue.slice(batch.length);
+    store.write(KEYS.queue, ws.queue);
+    ws.mode = 'shared';
+    ws.retry = 0;
+    if (ws.queue.length) setTimeout(wsFlush, 50);
+  } catch {
+    ws.mode = 'offline';
+    ws.retry = Math.min(ws.retry + 1, 6);
+    setTimeout(wsFlush, 5000 * ws.retry);
+  } finally {
+    ws.flushing = false;
+    renderStatus();
+  }
+}
+
+// Applies queued (unsent) changes to local state again after a pull replaced it.
+function reapplyQueue() {
+  for (const op of ws.queue) {
+    const o = state.opps.find(x => x.notice_id === op.id);
+    if (op.op === 'star') { if (op.on) state.stars.add(op.id); else state.stars.delete(op.id); }
+    else if (op.op === 'note') { if (op.text) state.notes[op.id] = op.text; else delete state.notes[op.id]; }
+    else if (op.op === 'grade' && o) { if (op.grade) o.grade_override = op.grade; else delete o.grade_override; }
+    else if (op.op === 'hide') { if (op.on === false) state.hidden.delete(op.id); else state.hidden.add(op.id); }
+    else if (op.op === 'unhideAll') state.hidden = new Set();
+    else if (op.op === 'checked') { if (op.at) state.checked[op.id] = op.at; else delete state.checked[op.id]; }
+    else if (op.op === 'row' && op.value && !o) { const r = fromImport(op.value); if (r) state.opps.push(r); }
+    else if (op.op === 'forget') { state.stars.delete(op.id); delete state.notes[op.id]; if (!feedOf(o || {})) state.opps = state.opps.filter(x => x.notice_id !== op.id); }
+    else if (op.op === 'settings' && op.value) state.settings = { ...state.settings, ...op.value };
+  }
+}
+
+// First time this browser meets the workspace: send up what it already has.
+function initialUpload(remote) {
+  const ops = [];
+  const remoteRows = remote.rows || {};
+  for (const o of state.opps) {
+    if ((!feedOf(o) || isPinned(o)) && !remoteRows[o.notice_id]) ops.push({ op: 'row', id: o.notice_id, value: rowSnapshot(o) });
+    if (o.grade_override && !(remote.grades || {})[o.notice_id]) ops.push({ op: 'grade', id: o.notice_id, grade: o.grade_override });
+  }
+  const remoteStars = new Set(remote.stars || []);
+  state.stars.forEach(id => { if (!remoteStars.has(id)) ops.push({ op: 'star', id, on: true }); });
+  for (const [id, text] of Object.entries(state.notes)) if (!(remote.notes || {})[id]) ops.push({ op: 'note', id, text });
+  const remoteHidden = new Set(remote.hidden || []);
+  state.hidden.forEach(id => { if (!remoteHidden.has(id)) ops.push({ op: 'hide', id, on: true }); });
+  for (const [id, at] of Object.entries(state.checked)) if (!(remote.checked || {})[id]) ops.push({ op: 'checked', id, at });
+  if (!remote.settings) ops.push({ op: 'settings', value: sharedSettings() });
+  return ops;
+}
+
+function applyRemote(remote) {
+  const now = new Date();
+  // Rows the team keeps (logged RFPs and snapshots of feed rows someone is working on).
+  const remoteRows = remote.rows || {};
+  const byId = new Map(state.opps.map(o => [o.notice_id, o]));
+  for (const [id, raw] of Object.entries(remoteRows)) {
+    const r = fromImport(raw);
+    if (!r || !isOpen(r, now)) continue;
+    const existing = byId.get(id);
+    if (!existing) { state.opps.push(r); byId.set(id, r); }
+    else if (!feedOf(existing)) Object.assign(existing, r); // logged rows: the shared copy wins
+  }
+  // Logged rows someone else removed.
+  state.opps = state.opps.filter(o => feedOf(o) || remoteRows[o.notice_id]);
+
+  state.stars = new Set(remote.stars || []);
+  state.notes = { ...(remote.notes || {}) };
+  state.hidden = new Set(remote.hidden || []);
+  state.checked = { ...(remote.checked || {}) };
+  const grades = remote.grades || {};
+  for (const o of state.opps) { if (GRADES[grades[o.notice_id]]) o.grade_override = grades[o.notice_id]; else delete o.grade_override; }
+  if (remote.settings && typeof remote.settings === 'object') {
+    const rs = remote.settings;
+    state.settings = {
+      ...state.settings,
+      keywords: Array.isArray(rs.keywords) && rs.keywords.length ? rs.keywords.slice(0, MAX_KEYWORDS) : state.settings.keywords,
+      sources: Array.isArray(rs.sources) ? rs.sources.filter(f => FEEDS[f]) : state.settings.sources,
+      company: typeof rs.company === 'string' ? rs.company : state.settings.company,
+      email: typeof rs.email === 'string' ? rs.email : state.settings.email,
+      phone: typeof rs.phone === 'string' ? rs.phone : state.settings.phone
+    };
+  }
+  reapplyQueue();
+  state.opps = state.opps.filter(o => !state.hidden.has(o.notice_id));
+  store.write(KEYS.settings, state.settings);
+  store.write(KEYS.checked, state.checked);
+  persist();
+}
+
+function wsPull() {
+  if (ws.pulling) return ws.pulling;
+  ws.pulling = (async () => {
+    try {
+      if (ws.queue.length && ws.mode !== 'unknown') await wsFlush();
+      const res = await fetch(STATE_URL, { headers: { Accept: 'application/json' }, cache: 'no-store' });
+      if (res.status === 401) { ws.mode = 'offline'; return; }
+      let data = null;
+      try { data = await res.json(); } catch { /* handled below */ }
+      if (data && typeof data.user === 'string') ws.user = data.user;
+      if (res.status === 404 || !data) { ws.mode = 'local'; return; } // no server (e.g. opened as a file)
+      if (data.configured === false) { ws.mode = 'local'; ws.queue = []; store.write(KEYS.queue, []); return; }
+      if (!res.ok) { ws.mode = 'offline'; return; }
+      const firstTime = !store.read(KEYS.linked, false);
+      const upload = firstTime ? initialUpload(data) : [];
+      ws.mode = 'shared';
+      applyRemote(data);
+      ws.lastPull = Date.now();
+      if (firstTime) {
+        store.write(KEYS.linked, true);
+        if (upload.length) { wsPush(upload); reapplyQueue(); persist(); }
+      }
+      if (ws.queue.length) wsFlush();
+      render();
+      if (state.activeId && $('#dlg-detail').open && !$('#d-notes').matches(':focus')) {
+        const o = state.opps.find(x => x.notice_id === state.activeId);
+        if (o) { $('#d-notes').value = state.notes[o.notice_id] || ''; updateDetailStar(o); }
+      }
+    } catch {
+      ws.mode = ws.mode === 'local' ? 'local' : 'offline';
+    } finally {
+      ws.pulling = null;
+      renderStatus();
+    }
+  })();
+  return ws.pulling;
+}
+
+/* ------------------------------------------------------------------ *
+ * Rendering
+ * ------------------------------------------------------------------ */
+const $ = sel => document.querySelector(sel);
+function esc(value) {
+  return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+const icon = (id, cls = 'i') => '<svg class="' + cls + '" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-' + id + '"/></svg>';
+const shortId = id => (/^[0-9a-f]{24,}$/i.test(id) ? id.slice(0, 8) + '…' : id);
+const fitBadge = f => { const k = FIT_RANK[f] ? f : 'LOW'; return '<span class="fit fit-' + k + '">' + FIT_LABEL[k] + '</span>'; };
+
+function filtered(now) {
+  const f = state.filters;
+  const q = f.q.trim().toLowerCase();
+  const list = state.opps.filter(o => {
+    if (f.grade !== 'ALL') {
+      const g = gradeOf(o);
+      if (f.grade === 'NONE' ? g : g !== f.grade) return false;
+    }
+    if (f.fit !== 'ALL' && (o.fit_status || 'LOW') !== f.fit) return false;
+    if (f.source !== 'ALL' && o.source !== f.source) return false;
+    if (f.watch && !state.stars.has(o.notice_id)) return false;
+    if (q) {
+      const hay = [o.title, o.notice_id, o.solicitation_number, o.buyer, o.source, o.region, o.matched_industry, o.sow_text, o.place_of_performance, gradeOf(o), state.notes[o.notice_id]].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  const byDeadline = (a, b) => {
+    const da = deadlineOf(a), db = deadlineOf(b);
+    if (da && db) return da - db;
+    return da ? -1 : db ? 1 : 0;
+  };
+  if (f.sort === 'fit') list.sort((a, b) => (FIT_RANK[b.fit_status] || 0) - (FIT_RANK[a.fit_status] || 0) || byDeadline(a, b));
+  else if (f.sort === 'posted') list.sort((a, b) => (parseDate(b.posted_date, false) || 0) - (parseDate(a.posted_date, false) || 0) || byDeadline(a, b));
+  else list.sort(byDeadline);
+  return list;
+}
+
+function rowHtml(o, now) {
+  const starred = state.stars.has(o.notice_id);
+  const g = gradeOf(o);
+  const d = deadlineOf(o);
+  const url = safeUrl(o.url);
+  const idLabel = o.solicitation_number || (/^manual-/.test(o.notice_id) ? '' : shortId(o.notice_id.replace(/^(ted|canadabuys|worldbank):/, '')));
+  const deadline = d
+    ? '<div class="deadline ' + urgencyClass(d, now) + '"><div class="date">' + esc(fmtDate(d)) + '</div><div class="due">' + esc(dueLabel(d, now)) + '</div></div>'
+    : '<div class="deadline"><div class="due">No deadline listed</div></div>';
+  return '<article class="row" role="listitem" data-id="' + esc(o.notice_id) + '">' +
+    '<button class="star' + (starred ? ' on' : '') + '" type="button" data-action="star" aria-pressed="' + starred + '" aria-label="' + (starred ? 'Remove from watchlist' : 'Add to watchlist') + '">' + icon('star') + '</button>' +
+    '<div class="cell-main">' +
+      '<button class="row-title" type="button" data-action="open">' + esc(o.title) + '</button>' +
+      '<div class="row-meta">' + (idLabel ? '<span class="chip-id">' + esc(idLabel) + '</span>' : '') +
+        (o.buyer ? '<span class="buyer" title="' + esc(o.buyer) + '">' + esc(o.buyer) + '</span>' : '') +
+        (o.source !== 'SAM.gov' ? '<span class="src">' + esc(o.source) + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="row-tags">' +
+      '<div><span class="grade-chip' + (g ? '' : ' none') + '" title="' + esc(g ? GRADES[g].industry : 'No grade matched yet') + '">' + esc(g || 'Review') + '</span></div>' +
+      '<div>' + fitBadge(o.fit_status) + '</div>' +
+      deadline +
+    '</div>' +
+    '<div class="cell-actions">' +
+      (url ? '<a class="btn btn-sm" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + (o.source === 'SAM.gov' ? 'SAM.gov' : 'Source') + icon('ext') + '</a>' : '') +
+      '<button class="btn btn-sm btn-soft" type="button" data-action="open">Details</button>' +
+    '</div>' +
+  '</article>';
+}
+
+function render() {
+  pruneClosed();
+  const now = new Date();
+  renderFilterOptions();
+  const list = filtered(now);
+
+  $('#list').innerHTML = list.map(o => rowHtml(o, now)).join('');
+  const none = state.opps.length === 0;
+  $('#empty-start').hidden = !none;
+  $('#empty-filter').hidden = none || list.length > 0;
+  const foot = $('#list-foot');
+  foot.hidden = list.length === 0;
+  foot.textContent = list.length === state.opps.length
+    ? 'Showing all ' + list.length + ' open ' + (list.length === 1 ? 'opportunity' : 'opportunities') + '.'
+    : 'Showing ' + list.length + ' of ' + state.opps.length + ' open opportunities.';
+
+  renderMetrics(now);
+  renderBars();
+  renderStatus();
+  renderPlatforms();
+}
+
+function renderMetrics(now) {
+  const soonLimit = 14;
+  const dated = state.opps.map(o => ({ o, d: deadlineOf(o) })).filter(x => x.d).sort((a, b) => a.d - b.d);
+  const soon = dated.filter(x => calendarDaysUntil(x.d, now) <= soonLimit);
+  $('#m-open').textContent = state.opps.length;
+  $('#m-soon').textContent = soon.length;
+  $('#m-soon-note').textContent = dated.length ? 'Next: ' + fmtDate(dated[0].d) : 'Nothing due soon';
+  $('#m-high').textContent = state.opps.filter(o => o.fit_status === 'HIGH').length;
+  $('#m-watch').textContent = state.opps.filter(o => state.stars.has(o.notice_id)).length;
+  const live = state.opps.filter(o => feedOf(o)).length;
+  $('#m-open-note').textContent = state.opps.length ? live + ' from live feeds · ' + (state.opps.length - live) + ' logged' : 'Closed notices are removed';
+}
+
+function renderFilterOptions() {
+  const gradeSel = $('#f-grade');
+  const gradeOpts = [['ALL', 'All grades']].concat(Object.keys(GRADES).map(g => [g, g + ' · ' + GRADE_SHORT[g]]), [['NONE', 'Needs review']]);
+  if (!gradeSel.options.length) gradeSel.innerHTML = gradeOpts.map(([v, l]) => '<option value="' + v + '">' + esc(l) + '</option>').join('');
+  gradeSel.value = state.filters.grade;
+
+  const feedOrder = FEED_IDS.map(f => FEEDS[f].label);
+  const rank = x => { const i = feedOrder.indexOf(x); return i < 0 ? 99 : i; };
+  const sources = [...new Set(state.opps.map(o => o.source))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  if (state.filters.source !== 'ALL' && !sources.includes(state.filters.source)) state.filters.source = 'ALL';
+  $('#f-source').innerHTML = '<option value="ALL">All sources</option>' + sources.map(s => '<option value="' + esc(s) + '">' + esc(s) + '</option>').join('');
+  $('#f-source').value = state.filters.source;
+}
+
+function renderBars() {
+  const counts = {};
+  let unassigned = 0;
+  state.opps.forEach(o => { const g = gradeOf(o); if (g) counts[g] = (counts[g] || 0) + 1; else unassigned++; });
+  const rows = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if (unassigned) rows.push(['NONE', unassigned]);
+  const max = Math.max(1, ...rows.map(r => r[1]));
+  $('#bars').innerHTML = rows.length
+    ? rows.map(([g, n]) =>
+        '<button class="bar' + (state.filters.grade === g ? ' active' : '') + '" type="button" data-grade="' + g + '" title="' + esc(g === 'NONE' ? 'No grade matched yet' : GRADES[g].industry) + '" aria-pressed="' + (state.filters.grade === g) + '">' +
+          '<span class="bar-label">' + (g === 'NONE' ? 'Review' : g) + '</span>' +
+          '<span class="bar-track"><span class="bar-fill' + (g === 'NONE' ? ' unassigned' : '') + '" style="width:' + Math.round(n / max * 100) + '%"></span></span>' +
+          '<span class="bar-count">' + n + '</span>' +
+        '</button>').join('')
+    : '<div class="panel-empty">Grade counts appear here once there are open opportunities.</div>';
+}
+
+function renderLibrary() {
+  $('#library').innerHTML = Object.entries(GRADES).map(([name, g]) =>
+    '<div class="gcard">' +
+      '<div class="gcard-top"><span class="grade-chip">' + esc(name) + '</span><span class="muted" style="font-size:11px">' + esc(g.listing || g.document) + '</span></div>' +
+      '<div class="gcard-ind">' + esc(g.industry) + '</div>' +
+      '<div class="gcard-desc">' + esc(g.application) + '</div>' +
+      '<div class="gcard-specs"><span>' + esc(g.sizing) + '</span><a href="' + esc(g.tds) + '" target="_blank" rel="noopener noreferrer">' + esc(g.document) + '</a></div>' +
+    '</div>').join('') +
+    '<div class="gcard"><div class="gcard-ind">All grades</div><div class="gcard-desc">' + COMMON_SPECS.map(([k, v]) => esc(k) + ': ' + esc(v)).join('<br>') + '</div></div>';
+}
+
+function renderStatus(override) {
+  const el = $('#status');
+  const s = state.sync;
+  if (override) { el.innerHTML = '<span class="dot warn"></span><span>' + esc(override) + '</span>'; return; }
+  const parts = [];
+  if (s.error) {
+    parts.push('<span class="dot err"></span><span class="status-error">' + esc(s.error) + '</span>');
+    if (s.at) parts.push('<span class="sep">·</span><span>Last good sync ' + esc(relTime(s.at)) + '</span>');
+  } else if (s.at) {
+    const failed = Object.entries(s.sources || {}).filter(([k, v]) => FEEDS[k] && v && !v.ok).map(([k]) => FEEDS[k].label);
+    parts.push('<span class="dot ' + (failed.length ? 'warn' : 'ok') + '"></span><span>Live feeds synced ' + esc(relTime(s.at)) + '</span>');
+    if (failed.length) parts.push('<span class="sep">·</span><span class="status-error">' + esc(failed.join(', ')) + ' didn’t load</span>');
+  } else {
+    parts.push('<span class="dot"></span><span>Live feeds not synced yet</span>');
+  }
+  const w = WS_LABEL[ws.mode] || WS_LABEL.unknown;
+  parts.push('<span class="sep">·</span><span class="' + (w.cls || '') + '" title="' + esc(w.title) + '">' + esc(ws.mode === 'shared' && ws.queue.length ? 'Saving…' : w.text) + '</span>');
+  parts.push('<span class="sep">·</span><span>Open opportunities only</span>');
+  el.innerHTML = parts.join(' ');
+}
+
+/* ------------------------------------------------------------------ *
+ * Platform directory
+ * ------------------------------------------------------------------ */
+function renderPlatforms() {
+  const tabs = $('#pl-tabs');
+  const counts = {};
+  PLATFORMS.forEach(p => { counts[p.group] = (counts[p.group] || 0) + 1; });
+  tabs.innerHTML = PLATFORM_GROUPS.map(g =>
+    '<button class="tab" type="button" role="tab" data-tab="' + g.id + '" aria-selected="' + (state.platformTab === g.id) + '">' + esc(g.label) + ' <span class="n">' + counts[g.id] + '</span></button>'
+  ).join('');
+
+  $('#pl-grid').innerHTML = PLATFORMS.filter(p => p.group === state.platformTab).map(p => {
+    const tags = '<span class="tag ' + (p.cost === 'free' ? 'free' : p.cost === 'paid' ? 'paid' : '') + '">' + esc(COST_LABEL[p.cost]) + '</span><span class="tag">' + esc(p.sector) + '</span>' + (p.feed ? '<span class="tag live">Live feed</span>' : '');
+    let status = '', actions = '';
+    if (p.feed) {
+      const on = state.settings.sources.includes(p.feed);
+      const info = (state.sync.sources || {})[p.feed];
+      const n = state.opps.filter(o => feedOf(o) === p.feed).length;
+      if (!on) status = '<span class="pcard-status off">' + 'Off in Settings' + '</span>';
+      else if (info && !info.ok) status = '<span class="pcard-status err" title="' + esc(info.error || '') + '">Last sync failed</span>';
+      else if (info) status = '<span class="pcard-status ok">' + icon('check') + n + ' open</span>';
+      else status = '<span class="pcard-status">Not synced yet</span>';
+      actions = '<a class="btn btn-sm" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer">Open' + icon('ext') + '</a>' +
+        (on && n ? '<button class="btn btn-sm btn-soft" type="button" data-pl="filter" data-src="' + esc(FEEDS[p.feed].label) + '">Show ' + n + '</button>' : '');
+    } else {
+      const at = state.checked[p.id];
+      const today = at && new Date(at).toDateString() === new Date().toDateString();
+      status = '<button class="btn btn-sm btn-ghost checked-btn" type="button" data-pl="check" data-id="' + p.id + '" aria-pressed="' + !!today + '" title="Mark as checked today">' + icon('check') +
+        (at ? (today ? 'Checked today' : 'Checked ' + esc(relTime(at))) : 'Mark checked') + '</button>';
+      actions = '<a class="btn btn-sm" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer">Open' + icon('ext') + '</a>' +
+        '<button class="btn btn-sm btn-soft" type="button" data-pl="log" data-name="' + esc(p.name) + '">' + icon('plus') + 'Log RFP</button>';
+    }
+    return '<div class="pcard">' +
+      '<div class="pcard-top"><div class="pcard-name">' + esc(p.name) + '</div></div>' +
+      '<div class="pcard-tags">' + tags + '</div>' +
+      '<div class="pcard-desc">' + esc(p.desc) + '</div>' +
+      '<div class="pcard-foot">' + status + '<div class="actions">' + actions + '</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ------------------------------------------------------------------ *
+ * Add an RFP by hand
+ * ------------------------------------------------------------------ */
+function openAdd(sourceName) {
+  const form = $('#add-form');
+  form.reset();
+  $('#a-watch').checked = true;
+  $('#a-error').textContent = '';
+  $('#a-source').value = sourceName || '';
+  $('#a-deadline').min = isoDay(new Date());
+  $('#a-source-list').innerHTML = PLATFORMS.filter(p => !p.feed).map(p => '<option value="' + esc(p.name) + '"></option>').join('');
+  $('#dlg-add').showModal();
+  setTimeout(() => $('#a-titlein').focus(), 30);
+}
+
+function submitAdd() {
+  const f = $('#add-form').elements;
+  const err = msg => { $('#a-error').textContent = msg; };
+  const title = f.title.value.trim();
+  const day = f.deadline.value;
+  const time = f.time.value;
+  const rawUrl = f.url.value.trim();
+  if (!title) { err('Add a title.'); f.title.focus(); return; }
+  if (!day) { err('Add the response deadline.'); f.deadline.focus(); return; }
+  let deadline = day;
+  if (time) {
+    const local = new Date(day + 'T' + time); // viewer's time zone
+    if (Number.isNaN(local.getTime())) { err('That time isn’t valid.'); return; }
+    deadline = local.toISOString();
+  }
+  const due = parseDate(deadline, true);
+  if (!due || due.getTime() <= Date.now()) { err('That deadline has already passed — only open opportunities are tracked.'); f.deadline.focus(); return; }
+  const url = rawUrl ? safeUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl) : '';
+  if (rawUrl && !url) { err('The link doesn’t look like a web address.'); f.url.focus(); return; }
+  const email = f.contact.value.trim();
+  const o = fromImport({
+    notice_id: 'manual-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
+    title,
+    source: f.source.value.trim() || 'Logged by hand',
+    buyer: f.buyer.value.trim(),
+    solicitation_number: f.sol.value.trim(),
+    response_deadline: deadline,
+    posted_date: isoDay(new Date()),
+    url,
+    sow_text: f.sow.value.trim(),
+    contact: email ? { name: '', email, phone: '' } : null,
+    added_by: ws.user,
+    added_at: new Date().toISOString()
+  });
+  state.opps.push(o);
+  if (f.watch.checked) state.stars.add(o.notice_id);
+  persist();
+  wsPush([{ op: 'row', id: o.notice_id, value: rowSnapshot(o) }].concat(f.watch.checked ? [{ op: 'star', id: o.notice_id, on: true }] : []));
+  $('#dlg-add').close();
+  render();
+  toast('Added “' + (title.length > 60 ? title.slice(0, 57) + '…' : title) + '”');
+}
+
+/* ------------------------------------------------------------------ *
+ * Detail drawer
+ * ------------------------------------------------------------------ */
+let noteTimer = null;
+
+function openDetail(id) {
+  const o = state.opps.find(x => x.notice_id === id);
+  if (!o) return;
+  state.activeId = id;
+  const now = new Date();
+  const d = deadlineOf(o);
+
+  $('#d-chips').innerHTML = '<span class="chip brand">' + esc(o.source) + '</span>' + (o.notice_type ? '<span class="chip">' + esc(o.notice_type) + '</span>' : '') + (o.set_aside ? '<span class="chip">' + esc(o.set_aside) + '</span>' : '');
+  $('#d-title').textContent = o.title;
+  $('#d-buyer').textContent = o.buyer || 'Buyer not listed';
+  $('#d-fit').innerHTML = fitBadge(o.fit_status);
+  const dl = $('#d-deadline');
+  dl.className = 'deadline ' + (d ? urgencyClass(d, now) : '');
+  dl.innerHTML = d ? '<div class="date">' + esc(fmtDateTime(d, o.response_deadline)) + '</div><div class="due">' + esc(dueLabel(d, now)) + '</div>' : '<div class="due">No deadline listed — confirm on the source listing</div>';
+
+  updateDetailStar(o);
+  const url = safeUrl(o.url);
+  const link = $('#d-link');
+  link.hidden = !url;
+  if (url) link.href = url;
+  $('#d-link-label').textContent = feedOf(o) ? 'View on ' + FEEDS[feedOf(o)].label : 'View source';
+  $('#d-hide').querySelector('span').textContent = feedOf(o) ? 'Not relevant' : 'Remove';
+
+  const reasons = Array.isArray(o.fit_reasons) && o.fit_reasons.length ? o.fit_reasons : scoreOpportunity(o).reasons;
+  const extra = o.matched_keyword ? [{ text: 'Found by the “' + o.matched_keyword + '” search' }] : [];
+  $('#d-reasons').innerHTML = extra.concat(reasons).map(r => '<li' + (r.warn ? ' class="warn"' : '') + '>' + esc(r.text) + '</li>').join('');
+
+  const posted = parseDate(o.posted_date, false);
+  const contact = o.contact && (o.contact.name || o.contact.email || o.contact.phone)
+    ? [esc(o.contact.name), o.contact.email ? '<a href="mailto:' + esc(o.contact.email) + '">' + esc(o.contact.email) + '</a>' : '', esc(o.contact.phone)].filter(Boolean).join('<br>')
+    : '';
+  const facts = [
+    ['Solicitation #', esc(o.solicitation_number)],
+    ['Notice ID', '<span class="mono" style="font-size:12px">' + esc(o.notice_id) + '</span>'],
+    ['Posted', posted ? esc(fmtDate(posted)) : ''],
+    ['Response due', d ? esc(fmtDateTime(d, o.response_deadline)) : ''],
+    ['NAICS', esc(o.naics)],
+    ['Product/service code', esc(o.psc)],
+    ['Place of performance', esc(o.place_of_performance || o.region)],
+    ['Set-aside', esc(o.set_aside)],
+    ['Contracting contact', contact],
+    ['Logged by', o.added_by ? esc(o.added_by) + (o.added_at && parseDate(o.added_at) ? ' · ' + esc(fmtDate(parseDate(o.added_at))) : '') : '']
+  ].filter(([, v]) => v);
+  $('#d-facts').innerHTML = facts.map(([k, v]) => '<div class="fact"><dt>' + esc(k) + '</dt><dd>' + v + '</dd></div>').join('');
+
+  $('#d-gaps-wrap').hidden = !o.technical_gaps;
+  $('#d-gaps').textContent = o.technical_gaps || '';
+
+  $('#d-sow').innerHTML = o.sow_text
+    ? '<div class="sow">' + esc(o.sow_text) + '</div>'
+    : '<div class="callout">' + (feedOf(o)
+        ? 'The full solicitation, amendments and attachments are on ' + FEEDS[feedOf(o)].label + '. Review them for specifications, quantities and delivery terms before bidding.'
+        : 'No scope or specifications were saved with this opportunity.') + '</div>';
+
+  const gradeSel = $('#d-grade');
+  gradeSel.innerHTML = '<option value="">' + (o.suggested_grade ? 'Auto · ' + o.suggested_grade : 'Choose a grade…') + '</option>' + Object.keys(GRADES).map(g => '<option value="' + g + '">' + g + '</option>').join('');
+  gradeSel.value = o.grade_override || '';
+  renderSpec(o);
+
+  $('#d-notes').value = state.notes[id] || '';
+  $('#d-note-status').textContent = '';
+
+  const dlg = $('#dlg-detail');
+  if (!dlg.open) dlg.showModal();
+  dlg.querySelector('.dlg-body').scrollTop = 0;
+}
+
+function renderSpec(o) {
+  const g = gradeOf(o);
+  const spec = g && GRADES[g];
+  $('#d-spec-name').textContent = spec ? g + ' — ' + spec.industry : 'No grade selected';
+  $('#d-spec').innerHTML = spec
+    ? [['Application', spec.application], ['Sizing', spec.sizing]].concat(COMMON_SPECS, [['Listing', spec.listing || 'None on file — don’t claim a certification'], ['Data sheet', spec.document]])
+        .map(([k, v]) => '<dt>' + esc(k) + '</dt><dd>' + (k === 'Data sheet' ? '<a href="' + esc(spec.tds) + '" target="_blank" rel="noopener noreferrer">' + esc(v) + '</a>' : esc(v)) + '</dd>').join('')
+    : '<dt>—</dt><dd style="font-family:var(--font)">Choose the grade that matches the solicitation’s specifications.</dd>';
+}
+
+function updateDetailStar(o) {
+  const on = state.stars.has(o.notice_id);
+  const btn = $('#d-star');
+  btn.classList.toggle('toggle', true);
+  btn.setAttribute('aria-pressed', String(on));
+  btn.querySelector('span').textContent = on ? 'Watching' : 'Watch';
+}
+
+function hideOpportunity(id) {
+  const o = state.opps.find(x => x.notice_id === id);
+  if (!o) return;
+  const fromFeed = !!feedOf(o);
+  if (!fromFeed && !confirm('Remove “' + o.title + '” from your list?')) return;
+  if (fromFeed) state.hidden.add(id);
+  state.opps = state.opps.filter(x => x.notice_id !== id);
+  state.stars.delete(id);
+  delete state.notes[id];
+  persist();
+  wsPush((fromFeed ? [{ op: 'hide', id, on: true }] : []).concat([{ op: 'forget', id }]));
+  $('#dlg-detail').close();
+  state.activeId = null;
+  render();
+  toast(fromFeed ? 'Hidden — the feeds won’t add it back.' : 'Removed');
+}
+
+function toggleStar(id) {
+  const on = !state.stars.has(id);
+  if (on) state.stars.add(id); else state.stars.delete(id);
+  persist();
+  const o = state.opps.find(x => x.notice_id === id);
+  wsPush([{ op: 'star', id, on }].concat(o ? [pinOp(o)] : []));
+  render();
+  if (o && state.activeId === id && $('#dlg-detail').open) updateDetailStar(o);
+}
+
+/* ------------------------------------------------------------------ *
+ * Proposal draft
+ * ------------------------------------------------------------------ */
+function buildProposal(o) {
+  const s = state.settings;
+  const g = gradeOf(o);
+  const spec = g ? GRADES[g] : null;
+  const d = deadlineOf(o);
+  const line = '='.repeat(78);
+  const row = (a, b, c) => a.padEnd(26) + ' | ' + b.padEnd(34) + ' | ' + c;
+  const v = x => x || '[not specified]';
+  const company = s.company || '[Company name]';
+
+  return [
+    'DRAFT — TECHNICAL & COMMERCIAL PROPOSAL',
+    'Verify every item in square brackets against the solicitation before submitting.',
+    'Figures are representative analyses or published ranges from AragoCor data sheets, not guaranteed',
+    'minimums. Values for a shipped lot come from that lot’s certificate of analysis.',
+    '',
+    'Solicitation:       ' + (o.solicitation_number || o.notice_id),
+    'Title:              ' + o.title,
+    'Issuing office:     ' + v(o.buyer),
+    'Response due:       ' + (d ? fmtDateTime(d, o.response_deadline) : '[confirm on listing]'),
+    'Source listing:     ' + v(safeUrl(o.url)),
+    'Prepared:           ' + fmtDate(new Date()),
+    '',
+    line,
+    '1. EXECUTIVE SUMMARY',
+    line,
+    company + ' submits this response to "' + o.title + '".',
+    '',
+    spec
+      ? 'We propose ' + g + ', natural oolitic aragonite (calcium carbonate) supplied for ' + spec.application.toLowerCase() + '. Data sheet: ' + spec.document + ' (' + spec.tds + ').'
+      : 'We propose [grade] oolitic aragonite (calcium carbonate). [Describe the grade and why it suits this requirement.]',
+    '',
+    '[Add 2–3 sentences tying the material to the buyer’s stated need: quantity, performance requirement, and delivery location.]',
+    '',
+    line,
+    '2. TECHNICAL COMPLIANCE MATRIX',
+    line,
+    row('Requirement', 'AragoCor data' + (g ? ' (' + g + ')' : ''), 'Status'),
+    '-'.repeat(78),
+    row('CaCO3 content', '96.17% representative (ASTM C 25)', '[Compare with the required minimum]'),
+    row('Elemental calcium', '38.51% representative (ASTM C 25)', '[Confirm if specified]'),
+    row('Particle sizing', spec ? spec.sizing : '[value]', '[Confirm vs. required gradation]'),
+    row('Iron (Fe2O3)', '0.01% representative (ASTM C 25)', '[Confirm if specified]'),
+    row('Moisture as received', '5–10% (published range)', '[Confirm; drying may be required]'),
+    row('Certifications/listings', spec && spec.listing ? spec.listing : '[None on file]', '[Only claim what is on file]'),
+    row('[Additional requirement]', '[value]', '[Status]'),
+    '',
+    'Open items noted during review:',
+    o.technical_gaps || '[List any requirement that needs clarification, or that cannot be met as written.]',
+    '',
+    line,
+    '3. QUALITY ASSURANCE',
+    line,
+    '- Certificate of analysis with each lot: [test methods]',
+    '- Quality management system: [certification and certificate number, if held]',
+    '- Retained samples: [retention period]',
+    '- Contaminant testing: [methods and limits required by the solicitation]',
+    '',
+    line,
+    '4. PACKAGING, LOGISTICS & DELIVERY',
+    line,
+    '- Packaging: [bulk bags, bagged, or pneumatic bulk — as offered for this order]',
+    '- Ship-from location: [plant or terminal]',
+    '- Delivery point: ' + (o.place_of_performance || '[per solicitation]'),
+    '- Mobilization after award: [__ business days]',
+    '- Sustained capacity: [__ tons per week]',
+    '',
+    line,
+    '5. COMMERCIAL TERMS',
+    line,
+    '- Pricing: [$ per ton, FOB ___]',
+    '- Payment terms: [e.g. Net 30]',
+    '- Quote valid for: [__ days]',
+    '',
+    'Submitted by:',
+    company,
+    [s.phone || '[phone]', s.email || '[bid contact email]'].join('  ·  ')
+  ].join('\n');
+}
+
+function openProposal(id) {
+  const o = state.opps.find(x => x.notice_id === id);
+  if (!o) return;
+  $('#p-sub').textContent = o.title;
+  $('#p-text').value = buildProposal(o);
+  updatePlaceholderCount();
+  $('#dlg-detail').close();
+  $('#dlg-proposal').showModal();
+}
+
+function updatePlaceholderCount() {
+  const n = ($('#p-text').value.match(/\[[^\]\n]+\]/g) || []).length;
+  $('#p-count').textContent = n ? n + ' bracketed ' + (n === 1 ? 'item' : 'items') + ' left to fill in' : 'No bracketed items left';
+}
+
+/* ------------------------------------------------------------------ *
+ * Import / export
+ * ------------------------------------------------------------------ */
+function importFile(file) {
+  if (!file) return;
+  if (!/\.json$/i.test(file.name) && file.type !== 'application/json') { toast('Choose a .json file.', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try { parsed = JSON.parse(String(reader.result)); } catch { toast('That file isn’t valid JSON.', 'error'); return; }
+    const items = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.opportunities) ? parsed.opportunities : null);
+    if (!items) { toast('The file should contain an array of opportunities.', 'error'); return; }
+    const now = new Date();
+    let added = 0, updated = 0, closed = 0, invalid = 0;
+    const ops = [];
+    for (const raw of items) {
+      const o = fromImport(raw);
+      if (!o) { invalid++; continue; }
+      if (!isOpen(o, now)) { closed++; continue; }
+      const i = state.opps.findIndex(x => x.notice_id === o.notice_id);
+      if (i >= 0) { if (!o.grade_override && state.opps[i].grade_override) o.grade_override = state.opps[i].grade_override; state.opps[i] = o; updated++; }
+      else { state.opps.push(o); added++; }
+      if (raw.watchlist === true) state.stars.add(o.notice_id);
+      if (raw.internal_notes && !state.notes[o.notice_id]) state.notes[o.notice_id] = String(raw.internal_notes);
+      if (!feedOf(o) || isPinned(o)) ops.push({ op: 'row', id: o.notice_id, value: rowSnapshot(o) });
+      if (state.stars.has(o.notice_id)) ops.push({ op: 'star', id: o.notice_id, on: true });
+      if (state.notes[o.notice_id]) ops.push({ op: 'note', id: o.notice_id, text: state.notes[o.notice_id] });
+      if (o.grade_override) ops.push({ op: 'grade', id: o.notice_id, grade: o.grade_override });
+    }
+    persist();
+    wsPush(ops);
+    render();
+    $('#dlg-import').close();
+    const bits = [added + ' added'];
+    if (updated) bits.push(updated + ' updated');
+    if (closed) bits.push(closed + ' already closed, skipped');
+    if (invalid) bits.push(invalid + ' missing a notice_id, skipped');
+    toast('Import: ' + bits.join(' · '), added || updated ? 'info' : 'warn');
+  };
+  reader.onerror = () => toast('Couldn’t read that file.', 'error');
+  reader.readAsText(file);
+}
+
+function exportOpen() {
+  if (!state.opps.length) { toast('There are no open opportunities to export yet.', 'warn'); return; }
+  const data = state.opps.map(o => {
+    const out = { ...o };
+    delete out.fit_reasons;
+    out.watchlist = state.stars.has(o.notice_id);
+    if (state.notes[o.notice_id]) out.internal_notes = state.notes[o.notice_id];
+    return out;
+  });
+  download('aragocor-open-opportunities-' + isoDay(new Date()) + '.json', JSON.stringify(data, null, 2), 'application/json');
+}
+
+function downloadTemplate() {
+  const due = new Date(Date.now() + 30 * 86400000);
+  const example = [{
+    notice_id: 'EXAMPLE-001',
+    title: 'Example — replace with the real opportunity title',
+    buyer: 'Buyer or agency name',
+    source: 'State portal',
+    solicitation_number: 'Buyer’s solicitation number',
+    response_deadline: isoDay(due),
+    posted_date: isoDay(new Date()),
+    url: 'https://example.com/link-to-the-rfp',
+    place_of_performance: 'City, ST',
+    contact: { name: '', email: '', phone: '' },
+    sow_text: 'Paste the scope of work or key specifications here.',
+    technical_gaps: 'Optional: anything you still need to confirm.',
+    suggested_grade: 'WT-CAL',
+    fit_status: 'MEDIUM'
+  }];
+  download('aragocor-import-template.json', JSON.stringify(example, null, 2), 'application/json');
+}
+
+function download(filename, content, type = 'text/plain') {
+  const blob = new Blob([content], { type: type + ';charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast('Copied to clipboard'); return; } catch { /* fall back */ }
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  ta.remove();
+  toast(ok ? 'Copied to clipboard' : 'Copy failed — select the text and copy it manually', ok ? 'info' : 'error');
+}
+
+/* ------------------------------------------------------------------ *
+ * Settings
+ * ------------------------------------------------------------------ */
+function openSettings() {
+  const s = state.settings;
+  $('#s-keywords').value = s.keywords.join('\n');
+  const locked = state.serverKeywords && state.serverKeywords.locked;
+  $('#s-keywords').disabled = !!locked;
+  if (locked) $('#s-keywords').value = state.serverKeywords.list.join('\n');
+  $('#s-keywords-hint').dataset.locked = locked ? '1' : '';
+  if (locked) $('#s-keywords-hint').textContent = 'Set on the server with RFP_KEYWORDS, so they can’t be changed here.';
+  $('#s-company').value = s.company;
+  $('#s-email').value = s.email;
+  $('#s-phone').value = s.phone;
+  $('#s-sources').innerHTML = FEED_IDS.map(f =>
+    '<label class="check-card" data-feed="' + f + '"><input type="checkbox" name="src" value="' + f + '"' + (s.sources.includes(f) ? ' checked' : '') + '>' +
+    '<div><strong>' + esc(FEEDS[f].label) + '</strong><span>' + esc(FEEDS[f].region) + '</span></div></label>'
+  ).join('');
+  const w = WS_LABEL[ws.mode] || WS_LABEL.unknown;
+  $('#s-workspace').textContent = w.title;
+  $('#s-user').textContent = ws.user || '—';
+  $('#s-clear-note').textContent = ws.mode === 'local' ? 'Nothing else keeps a copy, so export a backup first.' : 'The shared workspace isn’t affected.';
+  const unhide = $('#s-unhide');
+  unhide.hidden = state.hidden.size === 0;
+  unhide.textContent = 'Show ' + state.hidden.size + ' hidden ' + (state.hidden.size === 1 ? 'notice' : 'notices') + ' again';
+  $('#dlg-settings').showModal();
+}
+function saveSettings() {
+  const form = $('#settings-form');
+  const keywords = [...new Set($('#s-keywords').value.split(/[\n,]/).map(k => k.trim()).filter(Boolean))].slice(0, MAX_KEYWORDS);
+  const locked = state.serverKeywords && state.serverKeywords.locked;
+  state.settings = {
+    ...state.settings,
+    keywords: locked ? state.settings.keywords : (keywords.length ? keywords : [...DEFAULT_SETTINGS.keywords]),
+    sources: [...form.querySelectorAll('input[name="src"]:checked')].map(i => i.value).filter(v => FEEDS[v]),
+    company: $('#s-company').value.trim(),
+    email: $('#s-email').value.trim(),
+    phone: $('#s-phone').value.trim()
+  };
+  store.write(KEYS.settings, state.settings);
+  wsPush([{ op: 'settings', value: sharedSettings() }]);
+  state.sync.error = '';
+  store.write(KEYS.sync, state.sync);
+  $('#dlg-settings').close();
+  render();
+  toast('Settings saved' + (!state.settings.sources.length ? ' — every live feed is off' : ''));
+}
+function clearAll() {
+  const shared = ws.mode === 'shared' || ws.mode === 'offline';
+  if (!confirm(shared ? 'Remove the copy saved in this browser? The shared workspace keeps everything and will reload it.' : 'Remove every saved opportunity, note and star from this browser? Nothing else keeps a copy.')) return;
+  state.opps = []; state.stars = new Set(); state.notes = {}; state.checked = {};
+  state.sync = { at: null, count: 0, error: '', partial: false, sources: {} };
+  state.hidden = new Set();
+  ws.queue = [];
+  persist();
+  store.write(KEYS.sync, state.sync);
+  store.write(KEYS.checked, state.checked);
+  store.write(KEYS.queue, []);
+  $('#dlg-settings').close();
+  render();
+  toast(shared ? 'This browser’s copy was cleared — reloading from the shared workspace' : 'Saved data cleared');
+  if (shared) wsPull().then(() => syncFeeds({ auto: true }));
+}
+
+/* ------------------------------------------------------------------ *
+ * Theme + toasts
+ * ------------------------------------------------------------------ */
+function currentTheme() {
+  const set = document.documentElement.dataset.theme;
+  if (set) return set;
+  return window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function applyTheme(theme) {
+  if (theme) document.documentElement.dataset.theme = theme;
+  const dark = currentTheme() === 'dark';
+  $('#theme-icon').setAttribute('href', dark ? '#i-sun' : '#i-moon');
+  $('#btn-theme').setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+}
+
+function toast(message, type = 'info') {
+  const box = $('#toasts');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'error' ? ' error' : type === 'warn' ? ' warn' : '');
+  el.textContent = message;
+  box.appendChild(el);
+  if (box.showPopover) {
+    try { if (box.matches(':popover-open')) box.hidePopover(); box.showPopover(); } catch { /* not supported */ }
+  }
+  const ttl = type === 'error' || type === 'warn' ? 7000 : 3500;
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => {
+      el.remove();
+      if (!box.children.length && box.hidePopover) { try { box.hidePopover(); } catch { /* ignore */ } }
+    }, 260);
+  }, ttl);
+}
+
+/* ------------------------------------------------------------------ *
+ * Events
+ * ------------------------------------------------------------------ */
+function bind() {
+  $('#btn-sync').addEventListener('click', () => syncFeeds());
+  $('#btn-add').addEventListener('click', () => openAdd());
+  $('#btn-import').addEventListener('click', () => $('#dlg-import').showModal());
+  $('#btn-export').addEventListener('click', exportOpen);
+  $('#btn-settings').addEventListener('click', openSettings);
+  $('#btn-theme').addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    store.write(KEYS.theme, next);
+    applyTheme(next);
+  });
+
+  document.addEventListener('click', e => {
+    const cmd = e.target.closest('[data-cmd]');
+    if (!cmd) return;
+    if (cmd.dataset.cmd === 'sync') syncFeeds();
+    if (cmd.dataset.cmd === 'add') openAdd();
+    if (cmd.dataset.cmd === 'import') $('#dlg-import').showModal();
+    if (cmd.dataset.cmd === 'clear-filters') clearFilters();
+  });
+
+  // Filters
+  let searchTimer = null;
+  $('#f-search').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { state.filters.q = e.target.value; render(); }, 120);
+  });
+  $('#f-grade').addEventListener('change', e => { state.filters.grade = e.target.value; render(); });
+  $('#f-fit').addEventListener('change', e => { state.filters.fit = e.target.value; render(); });
+  $('#f-source').addEventListener('change', e => { state.filters.source = e.target.value; render(); });
+  $('#f-sort').addEventListener('change', e => { state.filters.sort = e.target.value; render(); });
+  $('#f-watch').addEventListener('click', e => {
+    state.filters.watch = !state.filters.watch;
+    e.currentTarget.setAttribute('aria-pressed', String(state.filters.watch));
+    render();
+  });
+  $('#bars').addEventListener('click', e => {
+    const bar = e.target.closest('[data-grade]');
+    if (!bar) return;
+    state.filters.grade = state.filters.grade === bar.dataset.grade ? 'ALL' : bar.dataset.grade;
+    render();
+    $('#list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // List actions
+  $('#list').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id = btn.closest('[data-id]').dataset.id;
+    if (btn.dataset.action === 'star') toggleStar(id);
+    if (btn.dataset.action === 'open') openDetail(id);
+  });
+
+  // Dialogs: close buttons + backdrop click
+  document.querySelectorAll('dialog').forEach(dlg => {
+    let pressedBackdrop = false; // ignore text selections that end outside the panel
+    dlg.addEventListener('pointerdown', e => { pressedBackdrop = e.target === dlg; });
+    dlg.addEventListener('click', e => {
+      if ((e.target === dlg && pressedBackdrop) || e.target.closest('[data-close]')) dlg.close();
+    });
+  });
+  $('#dlg-detail').addEventListener('close', () => { flushNote(); });
+
+  // Platform directory
+  $('#pl-tabs').addEventListener('click', e => {
+    const t = e.target.closest('[data-tab]');
+    if (!t) return;
+    state.platformTab = t.dataset.tab;
+    renderPlatforms();
+    const sel = document.querySelector('#pl-tabs [aria-selected="true"]');
+    if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  });
+  $('#pl-grid').addEventListener('click', e => {
+    const b = e.target.closest('[data-pl]');
+    if (!b) return;
+    if (b.dataset.pl === 'log') openAdd(b.dataset.name);
+    if (b.dataset.pl === 'check') {
+      const id = b.dataset.id;
+      const today = state.checked[id] && new Date(state.checked[id]).toDateString() === new Date().toDateString();
+      if (today) delete state.checked[id]; else state.checked[id] = new Date().toISOString();
+      store.write(KEYS.checked, state.checked);
+      wsPush([{ op: 'checked', id, at: state.checked[id] || null }]);
+      renderPlatforms();
+    }
+    if (b.dataset.pl === 'filter') {
+      clearFilters();
+      state.filters.source = b.dataset.src;
+      render();
+      $('#list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  // Add RFP
+  $('#add-form').addEventListener('submit', e => { e.preventDefault(); submitAdd(); });
+  $('#add-form').addEventListener('input', () => { $('#a-error').textContent = ''; });
+
+  // Detail drawer
+  $('#d-hide').addEventListener('click', () => { if (state.activeId) hideOpportunity(state.activeId); });
+  $('#d-star').addEventListener('click', () => { if (state.activeId) toggleStar(state.activeId); });
+  $('#d-proposal').addEventListener('click', () => { if (state.activeId) { flushNote(); openProposal(state.activeId); } });
+  $('#d-grade').addEventListener('change', e => {
+    const o = state.opps.find(x => x.notice_id === state.activeId);
+    if (!o) return;
+    if (e.target.value) o.grade_override = e.target.value; else delete o.grade_override;
+    persist();
+    wsPush([{ op: 'grade', id: o.notice_id, grade: o.grade_override || null }, pinOp(o)]);
+    renderSpec(o);
+    render();
+  });
+  $('#d-notes').addEventListener('input', () => {
+    $('#d-note-status').textContent = 'Saving…';
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(flushNote, 500);
+  });
+
+  // Proposal
+  $('#p-text').addEventListener('input', updatePlaceholderCount);
+  $('#p-copy').addEventListener('click', () => copyText($('#p-text').value));
+  const proposalName = ext => {
+    const o = state.opps.find(x => x.notice_id === state.activeId);
+    const base = (o && (o.solicitation_number || o.notice_id)) || 'draft';
+    return 'AragoCor-proposal-' + base.replace(/[^\w.-]+/g, '_').slice(0, 60) + '.' + ext;
+  };
+  $('#p-md').addEventListener('click', () => download(proposalName('md'), $('#p-text').value, 'text/markdown'));
+  $('#p-txt').addEventListener('click', () => download(proposalName('txt'), $('#p-text').value));
+
+  // Settings
+  const form = $('#settings-form');
+  form.addEventListener('submit', e => { e.preventDefault(); saveSettings(); });
+  $('#s-clear').addEventListener('click', clearAll);
+  $('#s-unhide').addEventListener('click', () => {
+    const n = state.hidden.size;
+    state.hidden = new Set();
+    persist();
+    wsPush([{ op: 'unhideAll' }]);
+    $('#s-unhide').hidden = true;
+    toast(n + ' hidden ' + (n === 1 ? 'notice' : 'notices') + ' will come back on the next sync');
+  });
+
+  // Import
+  const dz = $('#dropzone');
+  $('#file-input').addEventListener('change', e => { importFile(e.target.files && e.target.files[0]); e.target.value = ''; });
+  ['dragenter', 'dragover'].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(t => dz.addEventListener(t, () => dz.classList.remove('over')));
+  dz.addEventListener('drop', e => { e.preventDefault(); importFile(e.dataTransfer.files && e.dataTransfer.files[0]); });
+  $('#i-template').addEventListener('click', downloadTemplate);
+
+  // Keyboard: "/" focuses search
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !e.metaKey && !e.ctrlKey && !document.querySelector('dialog[open]') && !/input|textarea|select/i.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      $('#f-search').focus();
+    }
+  });
+
+  // Keep the list honest if the page stays open: drop anything that closes while you watch,
+  // and pick up what teammates changed.
+  setInterval(() => { render(); if (!document.hidden) wsPull(); }, 3 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { wsFlush(); return; }
+    render();
+    if (Date.now() - ws.lastPull > 60 * 1000) wsPull();
+    if (!state.sync.at || Date.now() - Date.parse(state.sync.at) > AUTO_SYNC_AFTER_MS) syncFeeds({ auto: true });
+  });
+  window.addEventListener('online', () => { wsFlush(); wsPull(); });
+  window.addEventListener('pagehide', () => wsFlush({ beacon: true }));
+}
+
+function flushNote() {
+  clearTimeout(noteTimer);
+  const id = state.activeId;
+  if (!id) return;
+  const text = $('#d-notes').value;
+  if ((state.notes[id] || '') === text) { if ($('#d-note-status').textContent === 'Saving…') $('#d-note-status').textContent = 'Saved'; return; }
+  if (text.trim()) state.notes[id] = text; else delete state.notes[id];
+  persist();
+  const o = state.opps.find(x => x.notice_id === id);
+  wsPush([{ op: 'note', id, text: text.trim() ? text : '' }].concat(o ? [pinOp(o)] : []));
+  $('#d-note-status').textContent = ws.mode === 'local' ? 'Saved in this browser' : 'Saved';
+}
+
+function clearFilters() {
+  state.filters = { q: '', grade: 'ALL', fit: 'ALL', source: 'ALL', sort: state.filters.sort, watch: false };
+  $('#f-search').value = '';
+  $('#f-fit').value = 'ALL';
+  $('#f-watch').setAttribute('aria-pressed', 'false');
+  render();
+}
+
+/* ------------------------------------------------------------------ *
+ * Start
+ * ------------------------------------------------------------------ */
+(function init() {
+  const savedTheme = store.read(KEYS.theme, null);
+  applyTheme(savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : null);
+  if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyTheme());
+
+  loadState();
+  bind();
+  renderLibrary();
+  if (window.matchMedia && matchMedia('(min-width: 980px)').matches) $('#library-panel').open = true;
+  const removed = pruneClosed();
+  render();
+  if (removed) toast(removed + ' closed ' + (removed === 1 ? 'opportunity was' : 'opportunities were') + ' removed');
+
+  // Load the shared workspace, then refresh the feeds if the last sync is stale.
+  // The server caches every feed, so this doesn't spend SAM.gov requests on each visit.
+  ws.queue = (store.read(KEYS.queue, []) || []).filter(x => x && x.op);
+  wsPull().finally(() => {
+    const stale = !state.sync.at || (Date.now() - Date.parse(state.sync.at)) > AUTO_SYNC_AFTER_MS;
+    if (stale) syncFeeds({ auto: true });
+  });
+})();
+</script>
+</body>
+</html>
