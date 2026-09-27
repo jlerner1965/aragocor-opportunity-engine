@@ -10,7 +10,7 @@
 
 import fs from 'node:fs';
 import { diagnoseFeeds } from '../lib/diagnose.js';
-import { USER_AGENT, CANADABUYS_URL } from '../lib/feeds.js';
+import { USER_AGENT, CANADABUYS_URL, DEFAULT_KEYWORDS, fetchCanadaBuys, fetchTed, fetchWorldBank, isOpen } from '../lib/feeds.js';
 
 const outIndex = process.argv.indexOf('--out');
 const outFile = outIndex > 0 ? process.argv[outIndex + 1] : null;
@@ -19,6 +19,31 @@ const now = new Date();
 const feeds = await diagnoseFeeds({ now, detail: true, includeSam: true });
 // SAM.gov is optional here: without the SAM_API_KEY repository secret it is skipped, not failed.
 const report = { checkedAt: now.toISOString(), ok: Object.values(feeds).every(f => f.ok || f.configured === false), feeds };
+
+// The same searches the dashboard runs, with AragoCor's default keywords, so the report
+// shows real current matches and proves the multi-keyword queries are accepted.
+report.keywordSearch = { keywords: DEFAULT_KEYWORDS };
+for (const [source, run] of Object.entries({
+  canadabuys: () => fetchCanadaBuys(DEFAULT_KEYWORDS, now),
+  ted: () => fetchTed(DEFAULT_KEYWORDS, now, { limit: 100, maxPages: 2 }),
+  worldbank: () => fetchWorldBank(DEFAULT_KEYWORDS, now, { rows: 50 })
+})) {
+  try {
+    const r = await run();
+    const open = r.items.filter(o => isOpen(o, now));
+    report.keywordSearch[source] = {
+      ok: r.errors.length === 0,
+      errors: r.errors.map(e => e.message),
+      query: r.raw && r.raw.query,
+      open: open.length,
+      examples: open.slice(0, 8).map(o => ({ title: o.title.slice(0, 140), buyer: o.buyer, deadline: o.response_deadline, matched: o.matched_keyword, url: o.url }))
+    };
+    if (r.errors.length) report.ok = false;
+  } catch (err) {
+    report.keywordSearch[source] = { ok: false, errors: [String(err && err.message)] };
+    report.ok = false;
+  }
+}
 
 // If CanadaBuys refuses the request, record how it answers different kinds of request.
 if (feeds.canadabuys && !feeds.canadabuys.ok) {
@@ -46,7 +71,7 @@ if (feeds.canadabuys && !feeds.canadabuys.ok) {
   }
 }
 
-if (outFile) fs.writeFileSync(outFile, JSON.stringify(report, null, 2));
+
 
 for (const [source, f] of Object.entries(feeds)) {
   const line = f.ok ? 'OK  ' : f.configured === false ? 'SKIP' : 'FAIL';
@@ -54,6 +79,11 @@ for (const [source, f] of Object.entries(feeds)) {
   console.log(`${line} ${f.label}:${counts}`);
   for (const p of f.problems || []) console.log(`       - ${p}`);
   if (f.note) console.log(`       ${f.note}`);
+}
+if (outFile) fs.writeFileSync(outFile, JSON.stringify(report, null, 2));
+for (const [source, k] of Object.entries(report.keywordSearch)) {
+  if (source === 'keywords') continue;
+  console.log(`${k.ok ? 'OK  ' : 'FAIL'} keyword search on ${source}: ${k.open ?? 0} open${k.errors && k.errors.length ? ' — ' + k.errors.join('; ') : ''}`);
 }
 if (!report.ok) {
   console.error('\nAt least one feed is not readable. See the report for raw samples.');
