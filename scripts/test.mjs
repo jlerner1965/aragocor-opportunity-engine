@@ -78,7 +78,9 @@ globalThis.fetch = async (url, init = {}) => {
     if (tedMode === 'down') return new Response('x', { status: 503 });
     return Response.json({ notices: [
       { 'publication-number': '656715-2026', 'notice-title': { eng: ['Spain – Limestone for remineralisation'] }, 'buyer-name': { spa: ['Canal de Isabel II'] }, 'buyer-country': ['ESP'], 'publication-date': day(-4) + '+02:00', 'deadline-receipt-tender-date-lot': [day(-1) + '+01:00', day(12) + '+01:00'], 'deadline-receipt-tender-time-lot': ['16:00:00+01:00'] },
-      { 'publication-number': '600000-2026', 'notice-title': { eng: 'Old water notice' }, 'deadline-receipt-tender-date-lot': [day(-4) + '+01:00'] }
+      { 'publication-number': '600000-2026', 'notice-title': { eng: 'Old water notice' }, 'deadline-receipt-tender-date-lot': [day(-4) + '+01:00'] },
+      { 'publication-number': '600010-2026', 'notice-title': { eng: 'Sweden – Software supply services – IT system LIMS KGG 2026' }, 'deadline-receipt-tender-date-lot': [day(20) + '+01:00'] },
+      { 'publication-number': '600020-2026', 'notice-title': { eng: 'Spain – Water-treatment chemicals – Suministro de carbonato cálcico para la ETAP', spa: 'España – Productos químicos – Suministro de carbonato cálcico para la ETAP' }, 'deadline-receipt-tender-date-lot': [day(25) + '+01:00'] }
     ], totalNoticeCount: 2, iterationNextToken: null });
   }
   if (url.includes('search.worldbank.org')) {
@@ -137,7 +139,8 @@ await test('all four feeds: only open, normalised notices come back', async () =
   assert.equal(res.status, 200);
   assert.equal(res.headers.get('cache-control'), 'private, no-store');
   const ids = body.opportunities.map(o => o.notice_id).sort();
-  assert.deepEqual(ids, ['S1', 'canadabuys:PW-26-001', 'ted:656715-2026', 'worldbank:OP1']);
+  assert.deepEqual(ids, ['S1', 'canadabuys:PW-26-001', 'ted:600020-2026', 'ted:656715-2026', 'worldbank:OP1']);
+  assert.equal(body.opportunities.find(o => o.notice_id === 'ted:600020-2026').matched_keyword, 'calcium carbonate');
   for (const s of ['sam', 'canadabuys', 'ted', 'worldbank']) assert.equal(body.sources[s].ok, true, s);
   const ted = body.opportunities.find(o => o.feed === 'ted');
   assert.equal(ted.response_deadline, day(12) + 'T16:00:00+01:00');
@@ -162,7 +165,7 @@ await test('a failing feed reports its error and keeps the last good results', a
   assert.equal(body.sources.ted.ok, false);
   assert.match(body.sources.ted.error, /503/);
   assert.equal(body.sources.ted.stale, true);
-  assert.deepEqual(body.opportunities.map(o => o.notice_id), ['ted:656715-2026']);
+  assert.deepEqual(body.opportunities.map(o => o.notice_id).sort(), ['ted:600020-2026', 'ted:656715-2026']);
   tedMode = 'ok';
 });
 
@@ -171,7 +174,7 @@ await test('TED falls back to the simpler query when the first is rejected', asy
   clearFeedCache();
   const body = await (await getOpportunities(req('/api/opportunities?keywords=water&sources=ted'))).json();
   assert.equal(body.sources.ted.ok, true);
-  assert.equal(body.sources.ted.count, 1);
+  assert.equal(body.sources.ted.count, 1); // only the open 'Water-treatment chemicals' notice names water
   tedMode = 'ok';
 });
 

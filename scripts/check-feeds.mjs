@@ -35,6 +35,8 @@ for (const [source, run] of Object.entries({
       ok: r.errors.length === 0,
       errors: r.errors.map(e => e.message),
       query: r.raw && r.raw.query,
+      received: r.raw && r.raw.received,
+      titleMatched: r.raw && r.raw.titleMatched,
       open: open.length,
       examples: open.slice(0, 8).map(o => ({ title: o.title.slice(0, 140), buyer: o.buyer, deadline: o.response_deadline, matched: o.matched_keyword, url: o.url }))
     };
