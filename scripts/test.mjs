@@ -10,7 +10,7 @@ import { GET as getOpportunities } from '../api/opportunities.js';
 import { GET as getState, POST as postState } from '../api/state.js';
 import { GET as getHealth } from '../api/health.js';
 import middleware from '../middleware.js';
-import { parseCsv, normDate, isOpen, clearFeedCache } from '../lib/feeds.js';
+import { parseCsv, normDate, isOpen, clearFeedCache, inZone } from '../lib/feeds.js';
 
 let passed = 0;
 async function test(name, fn) {
@@ -111,6 +111,14 @@ await test('dates from every source normalise', () => {
   assert.equal(normDate(''), '');
 });
 
+await test('CanadaBuys closing times are read as Eastern time, including daylight saving', () => {
+  assert.equal(inZone('2026-10-07T14:00:00', 'America/Toronto'), '2026-10-07T14:00:00-04:00');
+  assert.equal(inZone('2026-12-07T14:00:00', 'America/Toronto'), '2026-12-07T14:00:00-05:00');
+  assert.equal(inZone('2029-03-31T13:00:00', 'America/Toronto'), '2029-03-31T13:00:00-04:00');
+  assert.equal(inZone('2026-10-07', 'America/Toronto'), '2026-10-07');
+  assert.equal(inZone('2026-10-07T14:00:00Z', 'America/Toronto'), '2026-10-07T14:00:00Z');
+});
+
 await test('open means deadline in the future (or recent with no deadline)', () => {
   const now = new Date(NOW);
   assert.equal(isOpen({ response_deadline: day(1) }, now), true);
@@ -136,6 +144,7 @@ await test('all four feeds: only open, normalised notices come back', async () =
   assert.equal(ted.buyer, 'Canal de Isabel II · ESP');
   const cb = body.opportunities.find(o => o.feed === 'canadabuys');
   assert.equal(cb.sow_text, 'Agricultural limestone,\nbulk "super sacks"');
+  assert.match(cb.response_deadline, /T14:00:00-0[45]:00$/);
   assert.ok(!('keep_without_deadline' in cb));
   assert.ok(!JSON.stringify(body).includes('api_key'));
 });

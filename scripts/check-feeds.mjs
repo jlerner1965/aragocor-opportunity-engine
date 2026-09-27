@@ -17,7 +17,8 @@ const outFile = outIndex > 0 ? process.argv[outIndex + 1] : null;
 
 const now = new Date();
 const feeds = await diagnoseFeeds({ now, detail: true, includeSam: true });
-const report = { checkedAt: now.toISOString(), ok: Object.values(feeds).every(f => f.ok), feeds };
+// SAM.gov is optional here: without the SAM_API_KEY repository secret it is skipped, not failed.
+const report = { checkedAt: now.toISOString(), ok: Object.values(feeds).every(f => f.ok || f.configured === false), feeds };
 
 // If CanadaBuys refuses the request, record how it answers different kinds of request.
 if (feeds.canadabuys && !feeds.canadabuys.ok) {
@@ -48,7 +49,7 @@ if (feeds.canadabuys && !feeds.canadabuys.ok) {
 if (outFile) fs.writeFileSync(outFile, JSON.stringify(report, null, 2));
 
 for (const [source, f] of Object.entries(feeds)) {
-  const line = f.ok ? 'OK  ' : 'FAIL';
+  const line = f.ok ? 'OK  ' : f.configured === false ? 'SKIP' : 'FAIL';
   const counts = f.received != null ? ` received ${f.received}, parsed ${f.parsed}, with deadline ${f.withDeadline}, open ${f.open} (${f.ms} ms)` : '';
   console.log(`${line} ${f.label}:${counts}`);
   for (const p of f.problems || []) console.log(`       - ${p}`);
